@@ -5,6 +5,7 @@ import os
 import time
 import uuid
 import threading
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates')
 CORS(app)
@@ -124,7 +125,8 @@ def extract_media():
 @app.route('/api/download/<filename>', methods=['GET'])
 def download_file(filename):
     try:
-        filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+        safe_filename = secure_filename(filename)
+        filepath = os.path.join(DOWNLOAD_FOLDER, safe_filename)
         return send_file(filepath, as_attachment=True)
     except Exception as e:
         return jsonify({'error': 'Dosya bulunamadı.'}), 404
@@ -132,7 +134,8 @@ def download_file(filename):
 @app.route('/api/stream/<filename>', methods=['GET'])
 def stream_file(filename):
     try:
-        filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+        safe_filename = secure_filename(filename)
+        filepath = os.path.join(DOWNLOAD_FOLDER, safe_filename)
         return send_file(filepath)
     except Exception as e:
         return jsonify({'error': 'Dosya akışı sağlanamadı.'}), 404
