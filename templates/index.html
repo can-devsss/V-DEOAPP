@@ -92,13 +92,12 @@
         @media (min-width: 640px) { .app-header h1 { font-size: 32px; } }
         .app-header p { font-size: 13px; color: var(--text-secondary); font-weight: 550; }
 
-        /* PLATFORMLAR (ASLA TAŞMA YAPMAYAN YAN YANA KAYDIRILABİLİR/FLEX YAPISI) */
         .platforms-row { 
             display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; 
             flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        .platforms-row::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+        .platforms-row::-webkit-scrollbar { display: none; }
         
         .platform-tag {
             background: var(--input-bg); border: 1px solid var(--border-color);
@@ -137,14 +136,21 @@
         @media (min-width: 640px) { .search-field-container textarea { height: 38px; } }
         .search-field-container textarea::placeholder { color: var(--text-secondary); opacity: 0.7; font-weight: 550; }
 
-        .search-bottom-row { display: flex; justify-content: space-between; align-items: center; }
+        .search-bottom-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .left-actions { display: flex; gap: 8px; align-items: center; }
         .drop-hint { font-size: 11px; font-weight: 600; color: var(--text-secondary); opacity: 0.8; }
+
+        .paste-btn {
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+        }
+        .paste-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
 
         .apple-button {
             background: var(--apple-blue); color: white; border: none; padding: 0 20px;
             border-radius: 10px; font-weight: 750; font-size: 12.5px; cursor: pointer; height: 38px;
             transition: all 0.15s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            width: 100%; -webkit-appearance: none;
+            width: 100%; -webkit-appearance: none; flex-shrink: 0;
         }
         @media (min-width: 640px) { .apple-button { width: auto; } }
         .apple-button:hover { background: var(--apple-blue-hover); }
@@ -228,7 +234,6 @@
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
-        /* KUSURSUZ İOS / MAC MODAL VE ÇARPI BUTONU OPTİMİZASYONU */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             display: none; align-items: center; justify-content: center; z-index: 10000; padding: 16px; animation: fadeInModal 0.25s ease;
@@ -242,7 +247,6 @@
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; padding-right: 32px; }
         
-        /* Çarpı butonunun tam sağ üstte kusursuz ve büyük görünmesi */
         .modal-close {
             position: absolute; top: 14px; right: 14px;
             background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); 
@@ -257,7 +261,6 @@
 
     <div id="toast-container"></div>
 
-    <!-- Video Önizleme Modalı -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">✕</button>
@@ -270,7 +273,6 @@
         </div>
     </div>
 
-    <!-- QR Kod Modalı -->
     <div id="qr-modal" class="modal-overlay" onclick="closeQRModal(event)">
         <div class="modal-box" style="max-width:340px;" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeQRModal()">✕</button>
@@ -319,7 +321,10 @@
             <div class="search-field-container" id="drop-zone">
                 <textarea id="urlInput" placeholder="Bağlantıyı buraya yapıştırın veya dosya/link sürükleyin..."></textarea>
                 <div class="search-bottom-row">
-                    <span class="drop-hint">Sürükle-Bırak Aktif</span>
+                    <div class="left-actions">
+                        <span class="drop-hint">Sürükle-Bırak</span>
+                        <button class="paste-btn" onclick="pasteFromClipboard()">Panodan Yapıştır</button>
+                    </div>
                     <button class="apple-button" onclick="extractMedia()">Linki Getir</button>
                 </div>
             </div>
@@ -365,7 +370,6 @@
             }
         });
 
-        // HER TUŞA VE TIKLAMAYA ÖZEL DOKUNMA SESİ (Haptic Web Audio Click)
         function playMacSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -383,9 +387,8 @@
             } catch(e) {}
         }
 
-        // BÜTÜN TIKLANABİLİR ELEMENTLERE OTOMATİK SES ENTEGRASYONU
         document.addEventListener('click', (e) => {
-            if (e.target.closest('button, .segment-btn, .apple-dl-btn, .apple-button, .icon-btn, .thumb-box, .dot')) {
+            if (e.target.closest('button, .segment-btn, .apple-dl-btn, .apple-button, .icon-btn, .thumb-box, .dot, .paste-btn')) {
                 playMacSound();
             }
         });
@@ -410,6 +413,21 @@
             selectedQuality = quality;
             document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
+        }
+
+        // PANODAN YAPIŞTIRMA ÖZELLİĞİ (Clipboard API)
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    document.getElementById('urlInput').value = text;
+                    showToast('Panodaki bağlantı yapıştırıldı!');
+                } else {
+                    showToast('Pano boş!');
+                }
+            } catch (err) {
+                showToast('Panodan okuma izni alınamadı!');
+            }
         }
 
         const dropZone = document.getElementById('drop-zone');
@@ -448,11 +466,26 @@
         }
         function closeQRModal() { document.getElementById('qr-modal').style.display = 'none'; }
 
+        function extractUrls(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.match(urlRegex) || [];
+        }
+
         async function extractMedia() {
             const rawText = urlInput.value.trim();
             if (!rawText) { showToast('Lütfen en az bir bağlantı adresi girin!'); return; }
 
-            const urls = rawText.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+            const urls = extractUrls(rawText);
+            if (urls.length === 0) {
+                const lines = rawText.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+                if (lines.length > 0) urls.push(...lines);
+            }
+
+            if (urls.length === 0) {
+                showToast('Geçerli bir bağlantı bulunamadı!');
+                return;
+            }
+
             if (urls.length > 5) { showToast('Tek seferde en fazla 5 bağlantı girebilirsiniz!'); return; }
             urlInput.value = '';
 
