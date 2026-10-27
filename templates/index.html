@@ -8,32 +8,32 @@
     <style>
         :root {
             --mac-bg: #e3e4e8;
-            --window-bg: rgba(255, 255, 255, 0.82);
+            --window-bg: rgba(255, 255, 255, 0.84);
             --window-border: rgba(255, 255, 255, 0.95);
-            --input-bg: rgba(0, 0, 0, 0.035);
+            --input-bg: rgba(0, 0, 0, 0.04);
             --input-bg-focus: #ffffff;
             --apple-blue: #1c1c1e;
             --apple-blue-hover: #000000;
             --text-primary: #1d1d1f;
-            --text-secondary: #86868b;
+            --text-secondary: #6e6e73;
             --border-color: rgba(0, 0, 0, 0.08);
-            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.75);
             --shadow-window: 0 30px 60px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
 
         body.dark-mode {
             --mac-bg: #121214;
-            --window-bg: rgba(28, 28, 30, 0.78);
+            --window-bg: rgba(28, 28, 30, 0.82);
             --window-border: rgba(255, 255, 255, 0.1);
             --input-bg: rgba(255, 255, 255, 0.06);
-            --input-bg-focus: rgba(255, 255, 255, 0.09);
+            --input-bg-focus: rgba(255, 255, 255, 0.1);
             --text-primary: #f5f5f7;
             --text-secondary: #98989d;
             --border-color: rgba(255, 255, 255, 0.08);
-            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-bg: rgba(255, 255, 255, 0.04);
             --shadow-window: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.08);
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
         }
 
         * { 
@@ -46,10 +46,10 @@
         body {
             background-color: var(--mac-bg);
             background-image: 
-                radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.8) 0%, transparent 45%),
+                radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.85) 0%, transparent 45%),
                 radial-gradient(circle at 85% 85%, rgba(150, 165, 190, 0.5) 0%, transparent 45%);
             color: var(--text-primary);
-            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px 10px;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 14px 8px;
             transition: background 0.4s ease;
         }
 
@@ -58,67 +58,71 @@
             backdrop-filter: blur(60px); -webkit-backdrop-filter: blur(60px);
             border: 1px solid var(--window-border); border-radius: 24px;
             box-shadow: var(--shadow-window); overflow: hidden;
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .mac-window:hover { transform: translateY(-1px); }
 
         .titlebar {
-            height: 44px; background: rgba(255, 255, 255, 0.4);
+            height: 44px; background: rgba(255, 255, 255, 0.45);
             border-bottom: 1px solid var(--border-color); display: flex;
             align-items: center; justify-content: space-between; padding: 0 18px; position: relative;
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
-        body.dark-mode .titlebar { background: rgba(30, 30, 35, 0.3); }
+        body.dark-mode .titlebar { background: rgba(30, 30, 35, 0.35); }
 
         .mac-dots { display: flex; gap: 7px; align-items: center; position: absolute; left: 18px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; transition: transform 0.15s; }
-        .dot:hover { transform: scale(1.1); }
         .dot.red { background: #ff5f56; border: 0.5px solid rgba(0,0,0,0.15); }
         .dot.yellow { background: #ffbd2e; border: 0.5px solid rgba(0,0,0,0.15); }
         .dot.green { background: #27c93f; border: 0.5px solid rgba(0,0,0,0.15); }
 
-        .window-title { font-size: 13px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.4px; margin: 0 auto; opacity: 0.85; }
+        .window-title { font-size: 13.5px; font-weight: 750; color: var(--text-primary); letter-spacing: 0.4px; margin: 0 auto; opacity: 0.9; }
         .top-actions { display: flex; gap: 8px; position: absolute; right: 18px; }
 
         .icon-btn {
             background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary);
-            padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
         }
         .icon-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
         .icon-btn:active { transform: scale(0.95); }
 
-        .window-content { padding: 28px 20px; }
-        @media (min-width: 640px) { .window-content { padding: 40px 48px; } }
+        .window-content { padding: 24px 16px; }
+        @media (min-width: 640px) { .window-content { padding: 36px 44px; } }
 
-        .app-header { text-align: center; margin-bottom: 24px; }
-        .app-header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.7px; margin-bottom: 6px; color: var(--text-primary); }
+        .app-header { text-align: center; margin-bottom: 20px; }
+        .app-header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 6px; color: var(--text-primary); }
         @media (min-width: 640px) { .app-header h1 { font-size: 32px; } }
-        .app-header p { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .app-header p { font-size: 13px; color: var(--text-secondary); font-weight: 550; }
 
-        .platforms-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+        /* PLATFORMLAR (ASLA TAŞMA YAPMAYAN YAN YANA KAYDIRILABİLİR/FLEX YAPISI) */
+        .platforms-row { 
+            display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; 
+            flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .platforms-row::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+        
         .platform-tag {
             background: var(--input-bg); border: 1px solid var(--border-color);
-            padding: 5px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
-            backdrop-filter: blur(10px);
+            padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-secondary);
+            white-space: nowrap; flex-shrink: 0;
         }
 
         .segmented-control {
             display: flex; background: var(--input-bg); padding: 4px; border-radius: 14px;
-            max-width: 420px; margin: 0 auto 20px auto; border: 1px solid var(--border-color);
+            max-width: 400px; margin: 0 auto 18px auto; border: 1px solid var(--border-color);
         }
         .segment-btn {
-            flex: 1; background: transparent; border: none; padding: 8px; font-size: 12.5px; font-weight: 600;
-            color: var(--text-secondary); border-radius: 10px; cursor: pointer; transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1); height: 40px;
+            flex: 1; background: transparent; border: none; padding: 7px; font-size: 12.5px; font-weight: 650;
+            color: var(--text-secondary); border-radius: 10px; cursor: pointer; transition: all 0.2s ease; height: 38px;
         }
         .segment-btn.active {
-            background: var(--card-bg); color: var(--text-primary); font-weight: 700;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
+            background: var(--card-bg); color: var(--text-primary); font-weight: 750;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid var(--border-color);
         }
 
         .search-field-container {
             background: var(--input-bg); border: 1px solid var(--border-color);
-            padding: 14px; border-radius: 16px; display: flex; flex-direction: column; gap: 10px;
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.02); transition: all 0.25s ease;
+            padding: 12px; border-radius: 16px; display: flex; flex-direction: column; gap: 8px;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;
         }
         .search-field-container.drag-over { border-color: #34c759; background: rgba(52, 199, 89, 0.08); }
         .search-field-container:focus-within {
@@ -128,127 +132,137 @@
         
         .search-field-container textarea {
             width: 100%; background: transparent; border: none; outline: none; padding: 4px;
-            font-size: 14.5px; font-weight: 600; color: var(--text-primary); resize: none; height: 55px; -webkit-appearance: none;
+            font-size: 14px; font-weight: 650; color: var(--text-primary); resize: none; height: 50px; -webkit-appearance: none;
         }
-        @media (min-width: 640px) { .search-field-container textarea { height: 40px; } }
-        .search-field-container textarea::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        @media (min-width: 640px) { .search-field-container textarea { height: 38px; } }
+        .search-field-container textarea::placeholder { color: var(--text-secondary); opacity: 0.7; font-weight: 550; }
 
         .search-bottom-row { display: flex; justify-content: space-between; align-items: center; }
-        .drop-hint { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); opacity: 0.8; }
+        .drop-hint { font-size: 11px; font-weight: 600; color: var(--text-secondary); opacity: 0.8; }
 
         .apple-button {
-            background: var(--apple-blue); color: white; border: none; padding: 0 22px;
-            border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; height: 40px;
-            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: var(--apple-blue); color: white; border: none; padding: 0 20px;
+            border-radius: 10px; font-weight: 750; font-size: 12.5px; cursor: pointer; height: 38px;
+            transition: all 0.15s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             width: 100%; -webkit-appearance: none;
         }
         @media (min-width: 640px) { .apple-button { width: auto; } }
-        .apple-button:hover { background: var(--apple-blue-hover); transform: translateY(-1px); }
+        .apple-button:hover { background: var(--apple-blue-hover); }
         .apple-button:active { transform: scale(0.97); }
 
-        #loader { display: none; text-align: center; padding: 22px 0; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+        #loader { display: none; text-align: center; padding: 20px 0; color: var(--text-secondary); font-size: 12.5px; font-weight: 650; }
         .progress-bar-container {
             width: 100%; height: 6px; background: var(--input-bg); border-radius: 10px; overflow: hidden;
-            margin-top: 10px; border: 1px solid var(--border-color);
+            margin-top: 8px; border: 1px solid var(--border-color);
         }
         .progress-bar-fill { width: 0%; height: 100%; background: var(--apple-blue); transition: width 0.3s ease; }
 
-        .results-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; margin-bottom: 10px; }
-        .results-title { font-size: 13px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
-        .batch-actions { display: flex; gap: 10px; align-items: center; }
-        .clear-results-btn, .batch-zip-btn { font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .results-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; margin-bottom: 8px; }
+        .results-title { font-size: 12px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
+        .batch-actions { display: flex; gap: 8px; align-items: center; }
+        .clear-results-btn, .batch-zip-btn { font-size: 11.5px; font-weight: 750; cursor: pointer; }
         .clear-results-btn { color: var(--text-secondary); }
         .clear-results-btn:hover { color: var(--text-primary); }
-        .batch-zip-btn { color: var(--text-primary); background: var(--input-bg); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 8px; display: none; }
+        .batch-zip-btn { color: var(--text-primary); background: var(--input-bg); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 8px; display: none; }
         .batch-zip-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
 
-        #results-container { display: flex; flex-direction: column; gap: 14px; }
+        #results-container { display: flex; flex-direction: column; gap: 12px; }
 
         .result-card {
             background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 14px;
-            display: flex; flex-direction: column; gap: 14px; align-items: stretch; box-shadow: var(--shadow-card);
+            display: flex; flex-direction: column; gap: 12px; align-items: stretch; box-shadow: var(--shadow-card);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            animation: fadeIn 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            animation: fadeIn 0.3s ease;
         }
-        @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 18px; padding: 18px; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 16px; padding: 16px; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #f0f0f2; border: 0.5px solid rgba(0,0,0,0.08); cursor: pointer; }
-        @media (min-width: 640px) { .thumb-box { width: 120px; height: 75px; aspect-ratio: auto; } }
+        @media (min-width: 640px) { .thumb-box { width: 115px; height: 70px; aspect-ratio: auto; } }
         .thumb-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
         .thumb-box:hover img { transform: scale(1.05); }
         .play-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s; color: white; font-weight: 700; font-size: 12px; backdrop-filter: blur(4px);
+            opacity: 0; transition: opacity 0.2s; color: white; font-weight: 750; font-size: 11.5px; backdrop-filter: blur(4px);
         }
         .thumb-box:hover .play-overlay { opacity: 1; }
-        .duration-tag { position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.75); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+        .duration-tag { position: absolute; bottom: 5px; right: 5px; background: rgba(0, 0, 0, 0.75); color: white; padding: 2px 5px; border-radius: 6px; font-size: 9.5px; font-weight: 750; }
 
         .media-info { flex: 1; min-width: 0; }
-        .media-info h3 { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .media-meta { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .meta-badge { background: var(--input-bg); padding: 3px 8px; border-radius: 6px; font-size: 10.5px; border: 1px solid var(--border-color); }
+        .media-info h3 { font-size: 13px; font-weight: 750; margin-bottom: 4px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .media-meta { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .meta-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; border: 1px solid var(--border-color); font-weight: 600; }
 
-        .btn-group { display: flex; gap: 8px; flex-direction: column; }
+        .btn-group { display: flex; gap: 6px; flex-direction: column; }
         @media (min-width: 640px) { .btn-group { flex-direction: row; flex-wrap: wrap; } }
 
         .apple-dl-btn {
-            background: var(--apple-blue); color: white; padding: 8px 14px; border-radius: 9px; text-decoration: none;
-            font-weight: 700; font-size: 11.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; 
-            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); flex: 1; min-width: 95px;
+            background: var(--apple-blue); color: white; padding: 7px 12px; border-radius: 8px; text-decoration: none;
+            font-weight: 750; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; 
+            transition: all 0.15s ease; flex: 1; min-width: 90px;
         }
-        .apple-dl-btn:hover { background: var(--apple-blue-hover); transform: translateY(-1px); }
+        .apple-dl-btn:hover { background: var(--apple-blue-hover); }
         .apple-dl-btn:active { transform: scale(0.97); }
         .apple-dl-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
         .apple-dl-btn.secondary:hover { background: var(--border-color); color: var(--text-primary); }
 
         .history-box {
-            margin-top: 22px; background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 14px 18px; box-shadow: var(--shadow-card);
+            margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 12px 16px; box-shadow: var(--shadow-card);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 800; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
         .history-header span:last-child { cursor: pointer; }
-        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 110px; overflow-y: auto; }
-        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--input-bg); border-radius: 10px; font-size: 11.5px; color: var(--text-secondary); gap: 10px; border: 1px solid var(--border-color); }
-        .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 700; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 100px; overflow-y: auto; }
+        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--input-bg); border-radius: 10px; font-size: 11px; color: var(--text-secondary); gap: 8px; border: 1px solid var(--border-color); }
+        .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 750; }
         @media (min-width: 640px) { .history-row span:first-child { max-width: 440px; } }
 
-        #toast-container { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .mac-toast {
             background: rgba(30, 30, 35, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            color: white; padding: 13px 20px; border-radius: 14px; font-size: 13px; font-weight: 700;
+            color: white; padding: 12px 18px; border-radius: 14px; font-size: 12.5px; font-weight: 750;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
-            animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1), fadeOut 0.3s ease 2.7s forwards; pointer-events: auto;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; pointer-events: auto;
         }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
+        /* KUSURSUZ İOS / MAC MODAL VE ÇARPI BUTONU OPTİMİZASYONU */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             display: none; align-items: center; justify-content: center; z-index: 10000; padding: 16px; animation: fadeInModal 0.25s ease;
         }
         @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+        
         .modal-box {
-            width: 100%; max-width: 620px; background: var(--window-bg); border: 1px solid var(--window-border);
-            border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 50px 100px rgba(0,0,0,0.5);
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            width: 100%; max-width: 580px; background: var(--window-bg); border: 1px solid var(--window-border);
+            border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); position: relative;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 14px; }
-        .modal-close { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: 800; transition: background 0.2s; }
-        .modal-close:hover { background: var(--apple-blue); color: white; }
-        .modal-body { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; padding-right: 32px; }
+        
+        /* Çarpı butonunun tam sağ üstte kusursuz ve büyük görünmesi */
+        .modal-close {
+            position: absolute; top: 14px; right: 14px;
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); 
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 13px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10;
+        }
+        .modal-close:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
+        .modal-body { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
 
     <div id="toast-container"></div>
 
+    <!-- Video Önizleme Modalı -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">✕</button>
             <div class="modal-header">
-                <span id="modal-title">Medya Önizleme</span>
-                <button class="modal-close" onclick="closeModal()">✕</button>
+                <span id="modal-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Medya Önizleme</span>
             </div>
             <div style="width:100%; aspect-ratio:16/9; background:black; border-radius:12px; overflow:hidden;">
                 <video id="modal-video" controls autoplay style="width:100%; height:100%; object-fit:contain;"></video>
@@ -256,15 +270,16 @@
         </div>
     </div>
 
+    <!-- QR Kod Modalı -->
     <div id="qr-modal" class="modal-overlay" onclick="closeQRModal(event)">
-        <div class="modal-box" style="max-width:360px;" onclick="event.stopPropagation()">
+        <div class="modal-box" style="max-width:340px;" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQRModal()">✕</button>
             <div class="modal-header">
                 <span>Telefon ile İndir (QR)</span>
-                <button class="modal-close" onclick="closeQRModal()">✕</button>
             </div>
             <div class="modal-body">
-                <p style="font-size: 12px; color: var(--text-secondary);">Kameranızı okutarak dosyayı direkt telefonunuza aktarın.</p>
-                <div id="qrcode-container" style="padding: 12px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
+                <p style="font-size: 11.5px; color: var(--text-secondary);">Kameranızı okutarak dosyayı direkt telefonunuza aktarın.</p>
+                <div id="qrcode-container" style="padding: 10px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
             </div>
         </div>
     </div>
@@ -272,9 +287,9 @@
     <div class="mac-window">
         <div class="titlebar">
             <div class="mac-dots">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
+                <span class="dot red" onclick="playMacSound()"></span>
+                <span class="dot yellow" onclick="playMacSound()"></span>
+                <span class="dot green" onclick="playMacSound()"></span>
             </div>
             <div class="window-title">CAN STUDIO PRO</div>
             <div class="top-actions">
@@ -343,7 +358,6 @@
         let downloadHistory = [];
         let activeFilenames = [];
 
-        // Tema Hafızası (LocalStorage) Başlangıç Kontrolü
         window.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('can_studio_theme');
             if (savedTheme === 'dark') {
@@ -351,22 +365,30 @@
             }
         });
 
+        // HER TUŞA VE TIKLAMAYA ÖZEL DOKUNMA SESİ (Haptic Web Audio Click)
         function playMacSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start();
-                osc.stop(ctx.currentTime + 0.08);
+                osc.stop(ctx.currentTime + 0.05);
             } catch(e) {}
         }
+
+        // BÜTÜN TIKLANABİLİR ELEMENTLERE OTOMATİK SES ENTEGRASYONU
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('button, .segment-btn, .apple-dl-btn, .apple-button, .icon-btn, .thumb-box, .dot')) {
+                playMacSound();
+            }
+        });
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
@@ -422,7 +444,7 @@
             document.getElementById('qr-modal').style.display = 'flex';
             const container = document.getElementById('qrcode-container');
             container.innerHTML = '';
-            new QRCode(container, { text: fullUrl, width: 150, height: 150 });
+            new QRCode(container, { text: fullUrl, width: 140, height: 140 });
         }
         function closeQRModal() { document.getElementById('qr-modal').style.display = 'none'; }
 
@@ -473,7 +495,7 @@
                         card.className = 'result-card';
                         card.innerHTML = `
                             <div class="thumb-box" onclick="openModal('${data.streamUrl}', '${data.title.replace(/'/g, "\\'")}')">
-                                <img src="${data.thumbnail || 'https://via.placeholder.com/120x75'}" alt="Thumbnail">
+                                <img src="${data.thumbnail || 'https://via.placeholder.com/115x70'}" alt="Thumbnail">
                                 <div class="play-overlay">Önizle</div>
                                 <div class="duration-tag">${data.duration || 'Medya'}</div>
                             </div>
@@ -493,7 +515,6 @@
                         `;
                         resultsContainer.prepend(card);
                         addToHistory(uniqueId, data.title + ` (${data.ext.toUpperCase()})`);
-                        playMacSound();
                         showToast('Medya başarıyla hazırlandı!');
                     } else {
                         showToast(`Hata: ${data.error || 'İşlenemedi'}`);
@@ -558,7 +579,7 @@
             list.innerHTML = downloadHistory.map(item => `
                 <div class="history-row">
                     <span>${item.title}</span>
-                    <span style="color: ${item.status === 'İndirildi' ? '#34c759' : 'var(--text-secondary)'}; font-weight: 700;">${item.status}</span>
+                    <span style="color: ${item.status === 'İndirildi' ? '#34c759' : 'var(--text-secondary)'}; font-weight: 750;">${item.status}</span>
                 </div>
             `).join('');
         }
