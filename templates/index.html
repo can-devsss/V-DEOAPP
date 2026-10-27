@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAN STUDIO — Media Suite</title>
+    <title>CAN STUDIO — Media Suite Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --mac-bg: #d7d8dc;
-            --window-bg: rgba(255, 255, 255, 0.88);
+            --window-bg: rgba(255, 255, 255, 0.86);
             --window-border: rgba(255, 255, 255, 0.98);
             --input-bg: rgba(0, 0, 0, 0.045);
             --input-bg-focus: #ffffff;
@@ -35,14 +35,10 @@
         }
 
         * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
+            box-sizing: border-box; margin: 0; padding: 0; 
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", 'Plus Jakarta Sans', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-            word-break: break-word;
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility; word-break: break-word;
         }
         
         body {
@@ -51,321 +47,163 @@
                 radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.9) 0%, transparent 50%),
                 radial-gradient(circle at 80% 90%, rgba(170, 180, 200, 0.7) 0%, transparent 50%);
             color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px 10px;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px 10px;
         }
 
         .mac-window {
-            width: 100%;
-            max-width: 860px;
-            background: var(--window-bg);
-            backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px);
-            border: 1px solid var(--window-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow-window);
-            overflow: hidden;
+            width: 100%; max-width: 880px; background: var(--window-bg);
+            backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px);
+            border: 1px solid var(--window-border); border-radius: 20px;
+            box-shadow: var(--shadow-window); overflow: hidden;
+            transition: transform 0.2s ease;
         }
+        .mac-window:hover { transform: translateY(-2px); }
 
         .titlebar {
-            height: 42px;
-            background: rgba(255, 255, 255, 0.65);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            position: relative;
+            height: 42px; background: rgba(255, 255, 255, 0.65);
+            border-bottom: 1px solid var(--border-color); display: flex;
+            align-items: center; justify-content: space-between; padding: 0 16px; position: relative;
         }
+        body.dark-mode .titlebar { background: rgba(30, 30, 32, 0.5); }
 
-        body.dark-mode .titlebar {
-            background: rgba(30, 30, 32, 0.5);
-        }
-
-        /* macOS Trafik Işıkları */
-        .mac-dots {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            position: absolute;
-            left: 16px;
-        }
-        .dot {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            display: inline-block;
-        }
+        .mac-dots { display: flex; gap: 6px; align-items: center; position: absolute; left: 16px; }
+        .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
         .dot.red { background: #ff5f56; border: 0.5px solid rgba(0,0,0,0.15); }
         .dot.yellow { background: #ffbd2e; border: 0.5px solid rgba(0,0,0,0.15); }
         .dot.green { background: #27c93f; border: 0.5px solid rgba(0,0,0,0.15); }
 
-        .window-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: 0.3px;
-            margin: 0 auto;
-        }
-
-        .top-actions {
-            display: flex;
-            gap: 8px;
-            position: absolute;
-            right: 16px;
-        }
+        .window-title { font-size: 13px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.3px; margin: 0 auto; }
+        .top-actions { display: flex; gap: 8px; position: absolute; right: 16px; }
 
         .icon-btn {
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 11.5px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.15s ease;
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;
         }
         .icon-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
         .icon-btn:active { transform: scale(0.96); }
 
-        .window-content { 
-            padding: 24px 16px; 
-        }
-        @media (min-width: 640px) { 
-            .window-content { padding: 36px 40px; } 
-        }
+        .window-content { padding: 24px 16px; }
+        @media (min-width: 640px) { .window-content { padding: 36px 40px; } }
 
-        .app-header { text-align: center; margin-bottom: 22px; }
-        .app-header h1 { 
-            font-size: 22px; 
-            font-weight: 800; 
-            letter-spacing: -0.6px; 
-            margin-bottom: 6px; 
-            color: var(--text-primary); 
-        }
+        .app-header { text-align: center; margin-bottom: 20px; }
+        .app-header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 6px; color: var(--text-primary); }
         @media (min-width: 640px) { .app-header h1 { font-size: 30px; } }
-        
-        .app-header p { 
-            font-size: 12.5px; 
-            color: var(--text-secondary); 
-            font-weight: 600; 
-            padding: 0 4px;
-        }
-        @media (min-width: 640px) { .app-header p { font-size: 14px; padding: 0; } }
+        .app-header p { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
 
-        .platforms-row { 
-            display: flex; 
-            justify-content: center; 
-            gap: 4px; 
-            margin-bottom: 20px; 
-            flex-wrap: wrap; 
-        }
+        .platforms-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 18px; flex-wrap: wrap; }
         @media (min-width: 640px) { .platforms-row { gap: 6px; } }
-
         .platform-tag {
-            background: var(--input-bg); 
-            border: 1px solid var(--border-color);
-            padding: 4px 8px; 
-            border-radius: 8px; 
-            font-size: 10px; 
-            font-weight: 700; 
-            color: var(--text-secondary);
-            white-space: nowrap;
+            background: var(--input-bg); border: 1px solid var(--border-color);
+            padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; color: var(--text-secondary);
         }
-        @media (min-width: 640px) { .platform-tag { padding: 5px 12px; font-size: 11.5px; } }
 
         .segmented-control {
-            display: flex;
-            background: var(--input-bg);
-            padding: 4px;
-            border-radius: 12px;
-            max-width: 400px;
-            margin: 0 auto 18px auto;
-            border: 1px solid var(--border-color);
+            display: flex; background: var(--input-bg); padding: 4px; border-radius: 12px;
+            max-width: 400px; margin: 0 auto 16px auto; border: 1px solid var(--border-color);
         }
         .segment-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 6px 4px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border-radius: 9px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            height: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.2;
+            flex: 1; background: transparent; border: none; padding: 6px 4px; font-size: 12px; font-weight: 600;
+            color: var(--text-secondary); border-radius: 9px; cursor: pointer; transition: all 0.2s ease; height: 38px;
         }
         .segment-btn.active {
-            background: var(--card-bg);
-            color: var(--text-primary);
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
+            background: var(--card-bg); color: var(--text-primary); font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid var(--border-color);
         }
-        .segment-btn:active { transform: scale(0.97); }
 
         .search-field-container {
-            background: var(--input-bg); 
-            border: 1px solid var(--border-color);
-            padding: 12px; 
-            border-radius: 14px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); 
-            transition: all 0.2s ease;
+            background: var(--input-bg); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); transition: all 0.2s ease;
         }
+        .search-field-container.drag-over { border-color: #34c759; background: rgba(52, 199, 89, 0.05); }
         .search-field-container:focus-within {
-            background: var(--input-bg-focus); 
-            border-color: var(--apple-blue);
+            background: var(--input-bg-focus); border-color: var(--apple-blue);
             box-shadow: 0 0 0 3px rgba(44, 44, 46, 0.12);
         }
         
         .search-field-container textarea {
-            width: 100%; 
-            background: transparent; 
-            border: none; 
-            outline: none;
-            padding: 4px; 
-            font-size: 14px; 
-            font-weight: 600; 
-            color: var(--text-primary);
-            resize: none; 
-            height: 60px;
-            -webkit-appearance: none;
+            width: 100%; background: transparent; border: none; outline: none; padding: 4px;
+            font-size: 14px; font-weight: 600; color: var(--text-primary); resize: none; height: 55px; -webkit-appearance: none;
         }
-        @media (min-width: 640px) {
-            .search-field-container textarea { height: 40px; }
-        }
-        .search-field-container textarea::placeholder { color: var(--text-secondary); font-weight: 500; }
+        @media (min-width: 640px) { .search-field-container textarea { height: 38px; } }
 
-        .search-bottom-row { display: flex; justify-content: flex-end; align-items: center; }
+        .search-bottom-row { display: flex; justify-content: space-between; align-items: center; }
+        .drop-hint { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
 
         .apple-button {
-            background: var(--apple-blue); 
-            color: white; 
-            border: none;
-            padding: 0 20px; 
-            border-radius: 9px; 
-            font-weight: 700; 
-            font-size: 13px;
-            cursor: pointer; 
-            height: 38px; 
-            transition: background 0.15s ease, transform 0.1s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            -webkit-appearance: none;
+            background: var(--apple-blue); color: white; border: none; padding: 0 20px;
+            border-radius: 9px; font-weight: 700; font-size: 13px; cursor: pointer; height: 38px;
+            transition: background 0.15s ease, transform 0.1s ease; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            width: 100%; -webkit-appearance: none;
         }
         @media (min-width: 640px) { .apple-button { width: auto; } }
         .apple-button:hover { background: var(--apple-blue-hover); }
         .apple-button:active { transform: scale(0.97); }
 
-        #loader { display: none; text-align: center; padding: 22px 0; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
-        .spinner {
-            width: 22px; height: 22px; border: 2.5px solid rgba(0, 0, 0, 0.1);
-            border-top-color: var(--apple-blue); border-radius: 50%;
-            animation: spin 0.6s linear infinite; margin: 0 auto 8px auto;
+        /* Canlı Progress Bar */
+        #loader { display: none; text-align: center; padding: 20px 0; color: var(--text-secondary); font-size: 12.5px; font-weight: 600; }
+        .progress-bar-container {
+            width: 100%; height: 6px; background: var(--input-bg); border-radius: 10px; overflow: hidden;
+            margin-top: 10px; border: 1px solid var(--border-color);
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .progress-bar-fill { width: 0%; height: 100%; background: var(--apple-blue); transition: width 0.3s ease; }
 
-        .results-header-row {
-            display: flex; justify-content: space-between; align-items: center; margin-top: 22px; margin-bottom: 8px;
-        }
+        .results-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 8px; }
         .results-title { font-size: 12.5px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.4px; }
-        .clear-results-btn { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
-        .clear-results-btn:hover { color: var(--text-primary); }
+        .batch-actions { display: flex; gap: 10px; }
+        .clear-results-btn, .batch-zip-btn { font-size: 11.5px; font-weight: 700; cursor: pointer; }
+        .clear-results-btn { color: var(--text-secondary); }
+        .batch-zip-btn { color: #007aff; }
+        .clear-results-btn:hover, .batch-zip-btn:hover { text-decoration: underline; }
 
-        #results-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        #results-container { display: flex; flex-direction: column; gap: 12px; }
 
         .result-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color); 
-            border-radius: 14px; 
-            padding: 12px;
-            display: flex; 
-            flex-direction: column;
-            gap: 12px; 
-            align-items: stretch;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 12px;
+            display: flex; flex-direction: column; gap: 12px; align-items: stretch; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             animation: fadeIn 0.3s ease;
         }
-        @media (min-width: 640px) {
-            .result-card { flex-direction: row; align-items: center; gap: 16px; padding: 16px; }
-        }
+        @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 16px; padding: 16px; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #f0f0f2; border: 0.5px solid rgba(0,0,0,0.08); cursor: pointer; }
         @media (min-width: 640px) { .thumb-box { width: 110px; height: 70px; aspect-ratio: auto; } }
-        
         .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
         .play-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center;
             opacity: 0; transition: opacity 0.2s; color: white; font-weight: 800; font-size: 11.5px;
         }
         .thumb-box:hover .play-overlay { opacity: 1; }
-        
-        .duration-tag {
-            position: absolute; bottom: 4px; right: 4px; background: rgba(0, 0, 0, 0.75);
-            color: white; padding: 2px 5px; border-radius: 4px; font-size: 9.5px; font-weight: 700;
-        }
+        .duration-tag { position: absolute; bottom: 4px; right: 4px; background: rgba(0, 0, 0, 0.75); color: white; padding: 2px 5px; border-radius: 4px; font-size: 9.5px; font-weight: 700; }
+
         .media-info { flex: 1; min-width: 0; }
         .media-info h3 { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .media-meta { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-        
         .meta-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 4px; font-size: 10px; border: 1px solid var(--border-color); }
 
-        .btn-group { display: flex; gap: 8px; flex-direction: column; }
+        .btn-group { display: flex; gap: 6px; flex-direction: column; }
         @media (min-width: 640px) { .btn-group { flex-direction: row; } }
 
         .apple-dl-btn {
-            background: var(--apple-blue); color: white; padding: 8px 14px;
-            border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 11.5px;
-            display: inline-flex; align-items: center; justify-content: center; gap: 4px; 
-            transition: opacity 0.15s, transform 0.1s;
-            -webkit-appearance: none;
+            background: var(--apple-blue); color: white; padding: 7px 12px; border-radius: 8px; text-decoration: none;
+            font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: opacity 0.15s, transform 0.1s;
         }
-        .apple-dl-btn:hover { opacity: 0.9; }
         .apple-dl-btn:active { transform: scale(0.97); }
         .apple-dl-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .apple-dl-btn.secondary:hover { background: var(--border-color); }
 
         .history-box {
-            margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 14px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            margin-top: 18px; background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .history-header {
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 11.5px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 0.3px;
-        }
-        .history-header span:last-child { cursor: pointer; font-weight: 700; }
-        .history-header span:last-child:hover { color: var(--text-primary); }
-
-        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 110px; overflow-y: auto; }
-        .history-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 7px 10px; background: var(--input-bg); border-radius: 8px; font-size: 11.5px; color: var(--text-secondary); gap: 8px;
-        }
+        .history-header { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; }
+        .history-header span:last-child { cursor: pointer; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 100px; overflow-y: auto; }
+        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--input-bg); border-radius: 8px; font-size: 11px; color: var(--text-secondary); gap: 8px; }
         .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 700; }
-        @media (min-width: 640px) { .history-row span:first-child { max-width: 450px; } }
+        @media (min-width: 640px) { .history-row span:first-child { max-width: 440px; } }
 
-        #toast-container {
-            position: fixed; top: 20px; right: 20px; z-index: 9999;
-            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
-        }
+        /* Toast & Modals */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .mac-toast {
             background: rgba(30, 30, 32, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             color: white; padding: 12px 18px; border-radius: 12px; font-size: 12.5px; font-weight: 700;
@@ -375,33 +213,47 @@
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
-        #modal-overlay {
+        .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             display: none; align-items: center; justify-content: center; z-index: 10000; padding: 16px; animation: fadeInModal 0.2s ease;
         }
         @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
         .modal-box {
-            width: 100%; max-width: 680px; background: var(--window-bg); border: 1px solid var(--window-border);
-            border-radius: 16px; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.5); padding: 16px; display: flex; flex-direction: column; gap: 12px;
+            width: 100%; max-width: 620px; background: var(--window-bg); border: 1px solid var(--window-border);
+            border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 50px 100px rgba(0,0,0,0.5);
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13.5px; color: var(--text-primary); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13.5px; }
         .modal-close { background: var(--input-bg); border: none; color: var(--text-primary); width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: 800; }
-        .modal-video-container { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 10px; overflow: hidden; }
-        .modal-video-container video { width: 100%; height: 100%; object-fit: contain; outline: none; }
+        .modal-body { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
 
     <div id="toast-container"></div>
 
-    <div id="modal-overlay" onclick="closeModal(event)">
+    <!-- Video Önizleme Modalı -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <span id="modal-title">Medya Önizleme</span>
                 <button class="modal-close" onclick="closeModal()">✕</button>
             </div>
-            <div class="modal-video-container">
-                <video id="modal-video" controls autoplay></video>
+            <div style="width:100%; aspect-ratio:16/9; background:black; border-radius:10px; overflow:hidden;">
+                <video id="modal-video" controls autoplay style="width:100%; height:100%; object-fit:contain;"></video>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Kod Modalı -->
+    <div id="qr-modal" class="modal-overlay" onclick="closeQRModal(event)">
+        <div class="modal-box" style="max-width:380px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span>Telefon ile İndir (QR)</span>
+                <button class="modal-close" onclick="closeQRModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 12px; color: var(--text-secondary);">Kameranızı okutarak dosyayı direkt telefonunuza aktarın.</p>
+                <div id="qrcode-container" style="padding: 10px; background: white; border-radius: 10px;"></div>
             </div>
         </div>
     </div>
@@ -413,7 +265,7 @@
                 <span class="dot yellow"></span>
                 <span class="dot green"></span>
             </div>
-            <div class="window-title">CAN STUDIO</div>
+            <div class="window-title">CAN STUDIO PRO</div>
             <div class="top-actions">
                 <button class="icon-btn" onclick="toggleDarkMode()">🌓 Tema</button>
             </div>
@@ -426,55 +278,78 @@
             </div>
 
             <div class="platforms-row">
-                <div class="platform-tag">YouTube</div>
-                <div class="platform-tag">Instagram</div>
-                <div class="platform-tag">TikTok</div>
-                <div class="platform-tag">X (Twitter)</div>
-                <div class="platform-tag">Pinterest</div>
+                <div class="platform-tag">⚡ YouTube</div>
+                <div class="platform-tag">📸 Instagram</div>
+                <div class="platform-tag">🎵 TikTok</div>
+                <div class="platform-tag">🐦 X (Twitter)</div>
+                <div class="platform-tag">📌 Pinterest</div>
             </div>
 
             <div class="segmented-control">
-                <button class="segment-btn active" id="btn-best" onclick="setQuality('best', this)">
-                    <span>En İyi Kalite</span>
-                </button>
-                <button class="segment-btn" id="btn-audio" onclick="setQuality('audio', this)">
-                    <span>Sadece Ses (MP3)</span>
-                </button>
+                <button class="segment-btn active" id="btn-best" onclick="setQuality('best', this)">En İyi Kalite</button>
+                <button class="segment-btn" id="btn-audio" onclick="setQuality('audio', this)">Sadece Ses (MP3)</button>
             </div>
 
-            <div class="search-field-container">
-                <textarea id="urlInput" placeholder="Bağlantıyı buraya yapıştırın..."></textarea>
+            <div class="search-field-container" id="drop-zone">
+                <textarea id="urlInput" placeholder="Bağlantıyı buraya yapıştırın veya dosya/link sürükleyin..."></textarea>
                 <div class="search-bottom-row">
+                    <span class="drop-hint">Sürükle-Bırak Aktif</span>
                     <button class="apple-button" onclick="extractMedia()">Linki Getir</button>
                 </div>
             </div>
 
             <div id="loader">
-                <div class="spinner"></div>
-                <span id="loader-text">Medya kuyrukta işleniyor...</span>
+                <span id="loader-text">Medya kuyrukta işleniyor... (%0)</span>
+                <div class="progress-bar-container">
+                    <div id="progress-fill" class="progress-bar-fill"></div>
+                </div>
             </div>
 
             <div class="results-header-row" id="results-header" style="display: none;">
                 <span class="results-title">İndirilebilir Medyalar</span>
-                <span class="clear-results-btn" onclick="clearResults()">Temizle</span>
+                <div class="batch-actions">
+                    <span class="batch-zip-btn" onclick="downloadAllAsZip()">📦 Hepsini ZIP İndir</span>
+                    <span class="clear-results-btn" onclick="clearResults()">Temizle</span>
+                </div>
             </div>
             <div id="results-container"></div>
 
             <div class="history-box">
                 <div class="history-header">
                     <span>Oturum Geçmişi</span>
-                    <span onclick="clearHistory()">Temizle</span>
+                    <span onclick="clearHistory()" style="color:var(--text-secondary);">Temizle</span>
                 </div>
                 <div id="historyList" class="history-list">
-                    <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>
+                    <div style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- QR Kod Kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let selectedQuality = 'best';
         let downloadHistory = [];
+        let activeFilenames = [];
+
+        // Mac bildirim sesi için Web Audio API (Minik onay sesi)
+        function playMacSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.08);
+            } catch(e) {}
+        }
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
@@ -496,6 +371,22 @@
             element.classList.add('active');
         }
 
+        // Sürükle Bırak (Drag & Drop) Olayları
+        const dropZone = document.getElementById('drop-zone');
+        const urlInput = document.getElementById('urlInput');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); }, false);
+        });
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const text = dt.getData('text');
+            if (text) { urlInput.value = text; showToast('Bağlantı bırakıldı!'); }
+        });
+
         function openModal(streamUrl, title) {
             const modal = document.getElementById('modal-overlay');
             const video = document.getElementById('modal-video');
@@ -503,39 +394,31 @@
             video.src = streamUrl;
             modal.style.display = 'flex';
         }
-
         function closeModal() {
             const modal = document.getElementById('modal-overlay');
             const video = document.getElementById('modal-video');
-            video.pause();
-            video.src = '';
-            modal.style.display = 'none';
+            video.pause(); video.src = ''; modal.style.display = 'none';
         }
 
+        function openQRModal(fullUrl) {
+            document.getElementById('qr-modal').style.display = 'flex';
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '';
+            new QRCode(container, { text: fullUrl, width: 160, height: 160 });
+        }
+        function closeQRModal() { document.getElementById('qr-modal').style.display = 'none'; }
+
         async function extractMedia() {
-            const inputField = document.getElementById('urlInput');
-            const rawText = inputField.value.trim();
-            if (!rawText) {
-                showToast('Lütfen en az bir bağlantı adresi girin!');
-                return;
-            }
+            const rawText = urlInput.value.trim();
+            if (!rawText) { showToast('Lütfen en az bir bağlantı adresi girin!'); return; }
 
             const urls = rawText.split('\n').map(u => u.trim()).filter(u => u.length > 0);
-            
-            if (urls.length === 0) {
-                showToast('Geçerli bir bağlantı bulunamadı!');
-                return;
-            }
-
-            if (urls.length > 5) {
-                showToast('Tek seferde en fazla 5 bağlantı girebilirsiniz!');
-                return;
-            }
-
-            inputField.value = '';
+            if (urls.length > 5) { showToast('Tek seferde en fazla 5 bağlantı girebilirsiniz!'); return; }
+            urlInput.value = '';
 
             const loader = document.getElementById('loader');
             const loaderText = document.getElementById('loader-text');
+            const progressFill = document.getElementById('progress-fill');
             const resultsContainer = document.getElementById('results-container');
             const resultsHeader = document.getElementById('results-header');
 
@@ -543,7 +426,9 @@
 
             for (let i = 0; i < urls.length; i++) {
                 const currentUrl = urls[i];
-                loaderText.innerText = `İşleniyor (${i + 1}/${urls.length}): Medya hazırlanıyor...`;
+                let percent = Math.round(((i) / urls.length) * 100);
+                loaderText.innerText = `İşleniyor (${i + 1}/${urls.length}): Medya hazırlanıyor... (%${percent})`;
+                progressFill.style.width = percent + '%';
 
                 try {
                     const response = await fetch('/api/extract', {
@@ -551,12 +436,13 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ url: currentUrl, quality: selectedQuality })
                     });
-
                     const data = await response.json();
 
                     if (response.ok && data.success) {
                         resultsHeader.style.display = 'flex';
+                        activeFilenames.push(data.filename);
                         const downloadRoute = `/api/download/${data.filename}`;
+                        const fullDownloadUrl = window.location.origin + downloadRoute;
                         const uniqueId = 'history-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
                         
                         const card = document.createElement('div');
@@ -576,30 +462,55 @@
                                 </div>
                                 <div class="btn-group">
                                     <a href="${downloadRoute}" class="apple-dl-btn" target="_blank" onclick="markAsDownloaded('${uniqueId}')">Dosyayı İndir</a>
-                                    <button class="apple-dl-btn secondary" onclick="navigator.clipboard.writeText(window.location.origin + '${downloadRoute}'); showToast('Bağlantı panoya kopyalandı!');">Bağlantıyı Kopyala</button>
+                                    <button class="apple-dl-btn secondary" onclick="navigator.clipboard.writeText('${fullDownloadUrl}'); showToast('Bağlantı panoya kopyalandı!');">Bağlantıyı Kopyala</button>
+                                    <button class="apple-dl-btn secondary" onclick="openQRModal('${fullDownloadUrl}')">📱 QR Kod</button>
                                 </div>
                             </div>
                         `;
                         resultsContainer.prepend(card);
                         addToHistory(uniqueId, data.title + ` (${data.ext.toUpperCase()})`);
+                        playMacSound();
                         showToast('Medya başarıyla hazırlandı!');
                     } else {
                         showToast(`Hata: ${data.error || 'İşlenemedi'}`);
                     }
                 } catch (err) {
-                    console.error('Fetch hatası:', err);
                     showToast('Sunucu ile bağlantı kurulamadı!');
                 }
             }
 
-            loader.style.display = 'none';
-            inputField.focus();
+            progressFill.style.width = '100%';
+            loaderText.innerText = 'Tüm işlemler tamamlandı!';
+            setTimeout(() => { loader.style.display = 'none'; progressFill.style.width = '0%'; }, 800);
+            urlInput.focus();
+        }
+
+        async function downloadAllAsZip() {
+            if (activeFilenames.length === 0) return;
+            showToast('Dosyalar ZIP arşivine dönüştürülüyor...');
+            try {
+                const response = await fetch('/api/download-zip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filenames: activeFilenames })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    window.open(data.zipUrl, '_blank');
+                    showToast('ZIP arşivi indiriliyor!');
+                } else {
+                    showToast('ZIP oluşturulamadı!');
+                }
+            } catch(e) {
+                showToast('Sunucu hatası!');
+            }
         }
 
         function clearResults() {
             document.getElementById('results-container').innerHTML = '';
             document.getElementById('results-header').style.display = 'none';
-            showToast('Tüm sonuçlar temizlendi');
+            activeFilenames = [];
+            showToast('Sonuçlar temizlendi');
         }
 
         function addToHistory(id, title) {
@@ -610,16 +521,13 @@
 
         function markAsDownloaded(id) {
             const item = downloadHistory.find(h => h.id === id);
-            if (item) {
-                item.status = 'İndirildi';
-                renderHistory();
-            }
+            if (item) { item.status = 'İndirildi'; renderHistory(); }
         }
 
         function renderHistory() {
             const list = document.getElementById('historyList');
             if (downloadHistory.length === 0) {
-                list.innerHTML = '<div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>';
+                list.innerHTML = '<div style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>';
                 return;
             }
             list.innerHTML = downloadHistory.map(item => `
@@ -633,7 +541,7 @@
         function clearHistory() {
             downloadHistory = [];
             renderHistory();
-            showToast('Oturum geçmişi temizlendi');
+            showToast('Geçmiş temizlendi');
         }
     </script>
 </body>
