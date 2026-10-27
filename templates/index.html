@@ -17,9 +17,9 @@
             --text-primary: #1d1d1f;
             --text-secondary: #6e6e73;
             --border-color: rgba(0, 0, 0, 0.08);
-            --card-bg: rgba(255, 255, 255, 0.82);
+            --card-bg: rgba(255, 255, 255, 0.88);
             --shadow-window: 0 30px 60px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-            --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.04);
+            --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.04);
         }
 
         body.dark-mode {
@@ -31,9 +31,9 @@
             --text-primary: #f5f5f7;
             --text-secondary: #98989d;
             --border-color: rgba(255, 255, 255, 0.08);
-            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-bg: rgba(255, 255, 255, 0.05);
             --shadow-window: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.08);
-            --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.25);
+            --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.25);
         }
 
         * { 
@@ -53,13 +53,12 @@
             transition: background 0.4s ease;
         }
 
-        /* Arayüz zıplama ve kaymalarını tamamen yok eden akışkan pencere yapısı */
         .mac-window {
             width: 100%; max-width: 860px; background: var(--window-bg);
             backdrop-filter: blur(60px); -webkit-backdrop-filter: blur(60px);
             border: 1px solid var(--window-border); border-radius: 26px;
             box-shadow: var(--shadow-window); overflow: hidden;
-            will-change: height;
+            transform: translateZ(0); will-change: height;
         }
 
         .titlebar {
@@ -174,43 +173,45 @@
 
         #results-container { display: flex; flex-direction: column; gap: 14px; }
 
-        /* KARTLARIN SIFIR SARSINTI / PÜRÜZSÜZ YERLEŞİM DÜZENİ */
+        /* VİDEO BİLGİ KUTUSU (RESULT CARD) - İNANILMAZ MODERN VE LÜKS iOS 18 TASARIMI */
         .result-card {
-            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 16px;
-            display: flex; flex-direction: column; gap: 14px; align-items: stretch; box-shadow: var(--shadow-card);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 18px;
+            display: flex; flex-direction: column; gap: 16px; align-items: stretch; box-shadow: var(--shadow-card);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
             animation: smoothFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .result-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(28,28,30,0.05);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.08), 0 0 0 1px rgba(28,28,30,0.06);
+            border-color: rgba(0,0,0,0.12);
         }
-        @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 18px; padding: 18px; } }
+        @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 20px; padding: 20px; } }
         @keyframes smoothFadeIn { 
-            from { opacity: 0; transform: translateY(16px); } 
+            from { opacity: 0; transform: translateY(14px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 12px; overflow: hidden; background: #f0f0f2; border: 0.5px solid rgba(0,0,0,0.08); cursor: pointer; }
-        @media (min-width: 640px) { .thumb-box { width: 125px; height: 75px; aspect-ratio: auto; } }
-        .thumb-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1); }
+        .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 14px; overflow: hidden; background: #000; border: 0.5px solid rgba(0,0,0,0.1); cursor: pointer; }
+        @media (min-width: 640px) { .thumb-box { width: 135px; height: 80px; aspect-ratio: auto; } }
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
         .thumb-box:hover img { transform: scale(1.08); }
         .play-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s; color: white; font-weight: 800; font-size: 12px; backdrop-filter: blur(4px);
+            position: absolute; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s ease; color: white; font-weight: 800; font-size: 12px; backdrop-filter: blur(4px);
         }
         .thumb-box:hover .play-overlay { opacity: 1; }
-        .duration-tag { position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.75); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+        .duration-tag { position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.8); color: white; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: 0.3px; }
 
-        .media-info { flex: 1; min-width: 0; }
-        .media-info h3 { font-size: 13.5px; font-weight: 800; margin-bottom: 6px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .media-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+        .media-info h3 { font-size: 14px; font-weight: 850; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .media-meta { font-size: 11.5px; font-weight: 650; color: var(--text-secondary); margin-bottom: 12px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-        .meta-badge { background: var(--input-bg); padding: 3px 8px; border-radius: 8px; font-size: 10.5px; border: 1px solid var(--border-color); font-weight: 700; white-space: nowrap; }
+        /* Kapsüllenmiş (Pill) Şık Meta Rozetleri */
+        .media-meta { font-size: 11.5px; font-weight: 650; color: var(--text-secondary); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+        .meta-badge { background: var(--input-bg); padding: 3px 9px; border-radius: 8px; font-size: 10.5px; border: 1px solid var(--border-color); font-weight: 700; white-space: nowrap; }
         
         .card-platform-tag {
-            display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; border: 1px solid rgba(0,0,0,0.06); white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 8px; font-size: 10.5px; font-weight: 800; border: 1px solid rgba(0,0,0,0.06); white-space: nowrap;
         }
         .card-platform-tag svg { width: 11px; height: 11px; flex-shrink: 0; }
         .card-platform-tag.youtube { background: rgba(255, 0, 0, 0.08); color: #cc0000; border-color: rgba(255, 0, 0, 0.15); }
@@ -283,7 +284,6 @@
 
     <div id="toast-container"></div>
 
-    <!-- Pürüzsüz Önizleme Modalı ve Akıllı Fallback Motoru -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box" style="max-width: 620px;" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">✕</button>
@@ -300,7 +300,6 @@
         </div>
     </div>
 
-    <!-- Lüks iOS QR Kod Modalı -->
     <div id="qr-modal" class="modal-overlay" onclick="closeQRModal(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeQRModal()">✕</button>
@@ -602,7 +601,7 @@
                         card.className = 'result-card';
                         card.innerHTML = `
                             <div class="thumb-box" onclick="openModal('${data.streamUrl}', '${data.title.replace(/'/g, "\\'")}')">
-                                <img src="${data.thumbnail || 'https://via.placeholder.com/125x75'}" alt="Thumbnail">
+                                <img src="${data.thumbnail || 'https://via.placeholder.com/135x80'}" alt="Thumbnail">
                                 <div class="play-overlay">Önizle</div>
                                 <div class="duration-tag">${data.duration || 'Medya'}</div>
                             </div>
