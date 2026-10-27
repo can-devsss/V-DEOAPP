@@ -8,7 +8,7 @@
     <style>
         :root {
             --mac-bg: #e3e4e8;
-            --window-bg: rgba(255, 255, 255, 0.85);
+            --window-bg: rgba(255, 255, 255, 0.84);
             --window-border: rgba(255, 255, 255, 0.95);
             --input-bg: rgba(0, 0, 0, 0.04);
             --input-bg-focus: #ffffff;
@@ -60,25 +60,22 @@
             box-shadow: var(--shadow-window); overflow: hidden;
         }
 
-        /* Üst bar ve sade, efsanevi CAN STUDIO yazısı */
         .titlebar {
-            height: 48px; background: rgba(255, 255, 255, 0.45);
+            height: 44px; background: rgba(255, 255, 255, 0.45);
             border-bottom: 1px solid var(--border-color); display: flex;
-            align-items: center; justify-content: space-between; padding: 0 20px; position: relative;
+            align-items: center; justify-content: space-between; padding: 0 18px; position: relative;
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
         body.dark-mode .titlebar { background: rgba(30, 30, 35, 0.35); }
 
-        .window-title { 
-            font-size: 14.5px; 
-            font-weight: 800; 
-            color: var(--text-primary); 
-            letter-spacing: 1.2px; 
-            margin: 0 auto; 
-            text-transform: uppercase;
-        }
-        
-        .top-actions { display: flex; gap: 8px; position: absolute; right: 20px; }
+        .mac-dots { display: flex; gap: 7px; align-items: center; position: absolute; left: 18px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; transition: transform 0.15s; }
+        .dot.red { background: #ff5f56; border: 0.5px solid rgba(0,0,0,0.15); }
+        .dot.yellow { background: #ffbd2e; border: 0.5px solid rgba(0,0,0,0.15); }
+        .dot.green { background: #27c93f; border: 0.5px solid rgba(0,0,0,0.15); }
+
+        .window-title { font-size: 13.5px; font-weight: 750; color: var(--text-primary); letter-spacing: 0.4px; margin: 0 auto; opacity: 0.9; }
+        .top-actions { display: flex; gap: 8px; position: absolute; right: 18px; }
 
         .icon-btn {
             background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary);
@@ -139,14 +136,21 @@
         @media (min-width: 640px) { .search-field-container textarea { height: 38px; } }
         .search-field-container textarea::placeholder { color: var(--text-secondary); opacity: 0.7; font-weight: 550; }
 
-        .search-bottom-row { display: flex; justify-content: space-between; align-items: center; }
+        .search-bottom-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .left-actions { display: flex; gap: 8px; align-items: center; }
         .drop-hint { font-size: 11px; font-weight: 600; color: var(--text-secondary); opacity: 0.8; }
+
+        .paste-btn {
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+        }
+        .paste-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
 
         .apple-button {
             background: var(--apple-blue); color: white; border: none; padding: 0 20px;
             border-radius: 10px; font-weight: 750; font-size: 12.5px; cursor: pointer; height: 38px;
             transition: all 0.15s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            width: 100%; -webkit-appearance: none;
+            width: 100%; -webkit-appearance: none; flex-shrink: 0;
         }
         @media (min-width: 640px) { .apple-button { width: auto; } }
         .apple-button:hover { background: var(--apple-blue-hover); }
@@ -192,4 +196,432 @@
 
         .media-info { flex: 1; min-width: 0; }
         .media-info h3 { font-size: 13px; font-weight: 750; margin-bottom: 4px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .media-meta { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin
+        .media-meta { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .meta-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; border: 1px solid var(--border-color); font-weight: 600; }
+
+        .btn-group { display: flex; gap: 6px; flex-direction: column; }
+        @media (min-width: 640px) { .btn-group { flex-direction: row; flex-wrap: wrap; } }
+
+        .apple-dl-btn {
+            background: var(--apple-blue); color: white; padding: 7px 12px; border-radius: 8px; text-decoration: none;
+            font-weight: 750; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; 
+            transition: all 0.15s ease; flex: 1; min-width: 90px;
+        }
+        .apple-dl-btn:hover { background: var(--apple-blue-hover); }
+        .apple-dl-btn:active { transform: scale(0.97); }
+        .apple-dl-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .apple-dl-btn.secondary:hover { background: var(--border-color); color: var(--text-primary); }
+
+        .history-box {
+            margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 12px 16px; box-shadow: var(--shadow-card);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .history-header { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .history-header span:last-child { cursor: pointer; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 100px; overflow-y: auto; }
+        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--input-bg); border-radius: 10px; font-size: 11px; color: var(--text-secondary); gap: 8px; border: 1px solid var(--border-color); }
+        .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 750; }
+        @media (min-width: 640px) { .history-row span:first-child { max-width: 440px; } }
+
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .mac-toast {
+            background: rgba(30, 30, 35, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            color: white; padding: 12px 18px; border-radius: 14px; font-size: 12.5px; font-weight: 750;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; pointer-events: auto;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            display: none; align-items: center; justify-content: center; z-index: 10000; padding: 16px; animation: fadeInModal 0.25s ease;
+        }
+        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+        
+        .modal-box {
+            width: 100%; max-width: 580px; background: var(--window-bg); border: 1px solid var(--window-border);
+            border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); position: relative;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; padding-right: 32px; }
+        
+        .modal-close {
+            position: absolute; top: 14px; right: 14px;
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); 
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 13px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10;
+        }
+        .modal-close:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
+        .modal-body { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="modal-header">
+                <span id="modal-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Medya Önizleme</span>
+            </div>
+            <div style="width:100%; aspect-ratio:16/9; background:black; border-radius:12px; overflow:hidden;">
+                <video id="modal-video" controls autoplay style="width:100%; height:100%; object-fit:contain;"></video>
+            </div>
+        </div>
+    </div>
+
+    <div id="qr-modal" class="modal-overlay" onclick="closeQRModal(event)">
+        <div class="modal-box" style="max-width:340px;" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQRModal()">✕</button>
+            <div class="modal-header">
+                <span>Telefon ile İndir (QR)</span>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 11.5px; color: var(--text-secondary);">Kameranızı okutarak dosyayı direkt telefonunuza aktarın.</p>
+                <div id="qrcode-container" style="padding: 10px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mac-window">
+        <div class="titlebar">
+            <div class="mac-dots">
+                <span class="dot red" onclick="playMacSound()"></span>
+                <span class="dot yellow" onclick="playMacSound()"></span>
+                <span class="dot green" onclick="playMacSound()"></span>
+            </div>
+            <div class="window-title">CAN STUDIO PRO</div>
+            <div class="top-actions">
+                <button class="icon-btn" onclick="toggleDarkMode()">Tema</button>
+            </div>
+        </div>
+
+        <div class="window-content">
+            <div class="app-header">
+                <h1>Medya İndirme Konsolu</h1>
+                <p>YouTube, Instagram, TikTok ve X platformlarından yüksek kalitede medya indirin.</p>
+            </div>
+
+            <div class="platforms-row">
+                <div class="platform-tag">YouTube</div>
+                <div class="platform-tag">Instagram</div>
+                <div class="platform-tag">TikTok</div>
+                <div class="platform-tag">X (Twitter)</div>
+                <div class="platform-tag">Pinterest</div>
+            </div>
+
+            <div class="segmented-control">
+                <button class="segment-btn active" id="btn-best" onclick="setQuality('best', this)">En İyi Kalite</button>
+                <button class="segment-btn" id="btn-audio" onclick="setQuality('audio', this)">Sadece Ses (MP3)</button>
+            </div>
+
+            <div class="search-field-container" id="drop-zone">
+                <textarea id="urlInput" placeholder="Bağlantıyı buraya yapıştırın veya dosya/link sürükleyin..."></textarea>
+                <div class="search-bottom-row">
+                    <div class="left-actions">
+                        <span class="drop-hint">Sürükle-Bırak</span>
+                        <button class="paste-btn" onclick="pasteFromClipboard()">Panodan Yapıştır</button>
+                    </div>
+                    <button class="apple-button" onclick="extractMedia()">Linki Getir</button>
+                </div>
+            </div>
+
+            <div id="loader">
+                <span id="loader-text">Medya kuyrukta işleniyor... (%0)</span>
+                <div class="progress-bar-container">
+                    <div id="progress-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <div class="results-header-row" id="results-header" style="display: none;">
+                <span class="results-title">İndirilebilir Medyalar</span>
+                <div class="batch-actions">
+                    <span id="batchZipBtn" class="batch-zip-btn" onclick="downloadAllAsZip()">Tüm Linkleri İndir</span>
+                    <span class="clear-results-btn" onclick="clearResults()">Temizle</span>
+                </div>
+            </div>
+            <div id="results-container"></div>
+
+            <div class="history-box">
+                <div class="history-header">
+                    <span>Oturum Geçmişi</span>
+                    <span onclick="clearHistory()" style="color:var(--text-secondary);">Temizle</span>
+                </div>
+                <div id="historyList" class="history-list">
+                    <div style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        let selectedQuality = 'best';
+        let downloadHistory = [];
+        let activeFilenames = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('can_studio_theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        function playMacSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.05);
+            } catch(e) {}
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('button, .segment-btn, .apple-dl-btn, .apple-button, .icon-btn, .thumb-box, .dot, .paste-btn')) {
+                playMacSound();
+            }
+        });
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'mac-toast';
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('can_studio_theme', isDark ? 'dark' : 'light');
+            showToast(isDark ? 'Karanlık mod aktif' : 'Aydınlık mod aktif');
+        }
+
+        function setQuality(quality, element) {
+            selectedQuality = quality;
+            document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // PANODAN YAPIŞTIRMA ÖZELLİĞİ (Clipboard API)
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    document.getElementById('urlInput').value = text;
+                    showToast('Panodaki bağlantı yapıştırıldı!');
+                } else {
+                    showToast('Pano boş!');
+                }
+            } catch (err) {
+                showToast('Panodan okuma izni alınamadı!');
+            }
+        }
+
+        const dropZone = document.getElementById('drop-zone');
+        const urlInput = document.getElementById('urlInput');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); }, false);
+        });
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const text = dt.getData('text');
+            if (text) { urlInput.value = text; showToast('Bağlantı bırakıldı!'); }
+        });
+
+        function openModal(streamUrl, title) {
+            const modal = document.getElementById('modal-overlay');
+            const video = document.getElementById('modal-video');
+            document.getElementById('modal-title').innerText = title;
+            video.src = streamUrl;
+            modal.style.display = 'flex';
+        }
+        function closeModal() {
+            const modal = document.getElementById('modal-overlay');
+            const video = document.getElementById('modal-video');
+            video.pause(); video.src = ''; modal.style.display = 'none';
+        }
+
+        function openQRModal(fullUrl) {
+            document.getElementById('qr-modal').style.display = 'flex';
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '';
+            new QRCode(container, { text: fullUrl, width: 140, height: 140 });
+        }
+        function closeQRModal() { document.getElementById('qr-modal').style.display = 'none'; }
+
+        function extractUrls(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.match(urlRegex) || [];
+        }
+
+        async function extractMedia() {
+            const rawText = urlInput.value.trim();
+            if (!rawText) { showToast('Lütfen en az bir bağlantı adresi girin!'); return; }
+
+            const urls = extractUrls(rawText);
+            if (urls.length === 0) {
+                const lines = rawText.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+                if (lines.length > 0) urls.push(...lines);
+            }
+
+            if (urls.length === 0) {
+                showToast('Geçerli bir bağlantı bulunamadı!');
+                return;
+            }
+
+            if (urls.length > 5) { showToast('Tek seferde en fazla 5 bağlantı girebilirsiniz!'); return; }
+            urlInput.value = '';
+
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loader-text');
+            const progressFill = document.getElementById('progress-fill');
+            const resultsContainer = document.getElementById('results-container');
+            const resultsHeader = document.getElementById('results-header');
+            const batchZipBtn = document.getElementById('batchZipBtn');
+
+            loader.style.display = 'block';
+
+            for (let i = 0; i < urls.length; i++) {
+                const currentUrl = urls[i];
+                let percent = Math.round(((i) / urls.length) * 100);
+                loaderText.innerText = `İşleniyor (${i + 1}/${urls.length}): Medya hazırlanıyor... (%${percent})`;
+                progressFill.style.width = percent + '%';
+
+                try {
+                    const response = await fetch('/api/extract', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url: currentUrl, quality: selectedQuality })
+                    });
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        resultsHeader.style.display = 'flex';
+                        activeFilenames.push(data.filename);
+
+                        if (activeFilenames.length > 1) {
+                            batchZipBtn.style.display = 'inline-block';
+                        }
+
+                        const downloadRoute = `/api/download/${data.filename}`;
+                        const fullDownloadUrl = window.location.origin + downloadRoute;
+                        const uniqueId = 'history-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+                        
+                        const card = document.createElement('div');
+                        card.className = 'result-card';
+                        card.innerHTML = `
+                            <div class="thumb-box" onclick="openModal('${data.streamUrl}', '${data.title.replace(/'/g, "\\'")}')">
+                                <img src="${data.thumbnail || 'https://via.placeholder.com/115x70'}" alt="Thumbnail">
+                                <div class="play-overlay">Önizle</div>
+                                <div class="duration-tag">${data.duration || 'Medya'}</div>
+                            </div>
+                            <div class="media-info">
+                                <h3>${data.title}</h3>
+                                <div class="media-meta">
+                                    <span>Format: ${data.ext.toUpperCase()}</span>
+                                    <span class="meta-badge">${data.filesize}</span>
+                                    <span class="meta-badge">${data.uploader}</span>
+                                </div>
+                                <div class="btn-group">
+                                    <a href="${downloadRoute}" class="apple-dl-btn" target="_blank" onclick="markAsDownloaded('${uniqueId}')">Dosyayı İndir</a>
+                                    <button class="apple-dl-btn secondary" onclick="navigator.clipboard.writeText('${fullDownloadUrl}'); showToast('Bağlantı panoya kopyalandı!');">Bağlantıyı Kopyala</button>
+                                    <button class="apple-dl-btn secondary" onclick="openQRModal('${fullDownloadUrl}')">QR Kod</button>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.prepend(card);
+                        addToHistory(uniqueId, data.title + ` (${data.ext.toUpperCase()})`);
+                        showToast('Medya başarıyla hazırlandı!');
+                    } else {
+                        showToast(`Hata: ${data.error || 'İşlenemedi'}`);
+                    }
+                } catch (err) {
+                    showToast('Sunucu ile bağlantı kurulamadı!');
+                }
+            }
+
+            progressFill.style.width = '100%';
+            loaderText.innerText = 'Tüm işlemler tamamlandı!';
+            setTimeout(() => { loader.style.display = 'none'; progressFill.style.width = '0%'; }, 800);
+            urlInput.focus();
+        }
+
+        async function downloadAllAsZip() {
+            if (activeFilenames.length === 0) return;
+            showToast('Dosyalar arşivleniyor...');
+            try {
+                const response = await fetch('/api/download-zip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filenames: activeFilenames })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    window.open(data.zipUrl, '_blank');
+                    showToast('Arşiv indiriliyor!');
+                } else {
+                    showToast('Arşiv oluşturulamadı!');
+                }
+            } catch(e) {
+                showToast('Sunucu hatası!');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results-container').innerHTML = '';
+            document.getElementById('results-header').style.display = 'none';
+            document.getElementById('batchZipBtn').style.display = 'none';
+            activeFilenames = [];
+            showToast('Sonuçlar temizlendi');
+        }
+
+        function addToHistory(id, title) {
+            downloadHistory.unshift({ id: id, title: title, status: 'Bekliyor' });
+            if (downloadHistory.length > 5) downloadHistory.pop();
+            renderHistory();
+        }
+
+        function markAsDownloaded(id) {
+            const item = downloadHistory.find(h => h.id === id);
+            if (item) { item.status = 'İndirildi'; renderHistory(); }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (downloadHistory.length === 0) {
+                list.innerHTML = '<div style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>';
+                return;
+            }
+            list.innerHTML = downloadHistory.map(item => `
+                <div class="history-row">
+                    <span>${item.title}</span>
+                    <span style="color: ${item.status === 'İndirildi' ? '#34c759' : 'var(--text-secondary)'}; font-weight: 750;">${item.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            downloadHistory = [];
+            renderHistory();
+            showToast('Geçmiş temizlendi');
+        }
+    </script>
+</body>
+</html>
