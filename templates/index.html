@@ -90,11 +90,10 @@
         @media (min-width: 640px) { .app-header h1 { font-size: 30px; } }
         .app-header p { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
 
-        .platforms-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 18px; flex-wrap: wrap; }
-        @media (min-width: 640px) { .platforms-row { gap: 6px; } }
+        .platforms-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
         .platform-tag {
             background: var(--input-bg); border: 1px solid var(--border-color);
-            padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; color: var(--text-secondary);
+            padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; color: var(--text-secondary);
         }
 
         .segmented-control {
@@ -140,7 +139,6 @@
         .apple-button:hover { background: var(--apple-blue-hover); }
         .apple-button:active { transform: scale(0.97); }
 
-        /* Canlı Progress Bar */
         #loader { display: none; text-align: center; padding: 20px 0; color: var(--text-secondary); font-size: 12.5px; font-weight: 600; }
         .progress-bar-container {
             width: 100%; height: 6px; background: var(--input-bg); border-radius: 10px; overflow: hidden;
@@ -150,11 +148,12 @@
 
         .results-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 8px; }
         .results-title { font-size: 12.5px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.4px; }
-        .batch-actions { display: flex; gap: 10px; }
+        .batch-actions { display: flex; gap: 12px; align-items: center; }
         .clear-results-btn, .batch-zip-btn { font-size: 11.5px; font-weight: 700; cursor: pointer; }
         .clear-results-btn { color: var(--text-secondary); }
-        .batch-zip-btn { color: #007aff; }
-        .clear-results-btn:hover, .batch-zip-btn:hover { text-decoration: underline; }
+        .batch-zip-btn { color: var(--text-primary); background: var(--input-bg); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 6px; display: none; }
+        .batch-zip-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
+        .clear-results-btn:hover { color: var(--text-primary); }
 
         #results-container { display: flex; flex-direction: column; gap: 12px; }
 
@@ -190,6 +189,7 @@
         }
         .apple-dl-btn:active { transform: scale(0.97); }
         .apple-dl-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .apple-dl-btn.secondary:hover { background: var(--border-color); }
 
         .history-box {
             margin-top: 18px; background: var(--card-bg); border: 1px solid var(--border-color);
@@ -202,7 +202,6 @@
         .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 700; }
         @media (min-width: 640px) { .history-row span:first-child { max-width: 440px; } }
 
-        /* Toast & Modals */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .mac-toast {
             background: rgba(30, 30, 32, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -278,11 +277,11 @@
             </div>
 
             <div class="platforms-row">
-                <div class="platform-tag">⚡ YouTube</div>
-                <div class="platform-tag">📸 Instagram</div>
-                <div class="platform-tag">🎵 TikTok</div>
-                <div class="platform-tag">🐦 X (Twitter)</div>
-                <div class="platform-tag">📌 Pinterest</div>
+                <div class="platform-tag">YouTube</div>
+                <div class="platform-tag">Instagram</div>
+                <div class="platform-tag">TikTok</div>
+                <div class="platform-tag">X (Twitter)</div>
+                <div class="platform-tag">Pinterest</div>
             </div>
 
             <div class="segmented-control">
@@ -308,7 +307,7 @@
             <div class="results-header-row" id="results-header" style="display: none;">
                 <span class="results-title">İndirilebilir Medyalar</span>
                 <div class="batch-actions">
-                    <span class="batch-zip-btn" onclick="downloadAllAsZip()">📦 Hepsini ZIP İndir</span>
+                    <span id="batchZipBtn" class="batch-zip-btn" onclick="downloadAllAsZip()">Tüm Linkleri İndir</span>
                     <span class="clear-results-btn" onclick="clearResults()">Temizle</span>
                 </div>
             </div>
@@ -333,7 +332,6 @@
         let downloadHistory = [];
         let activeFilenames = [];
 
-        // Mac bildirim sesi için Web Audio API (Minik onay sesi)
         function playMacSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -371,7 +369,6 @@
             element.classList.add('active');
         }
 
-        // Sürükle Bırak (Drag & Drop) Olayları
         const dropZone = document.getElementById('drop-zone');
         const urlInput = document.getElementById('urlInput');
 
@@ -421,6 +418,7 @@
             const progressFill = document.getElementById('progress-fill');
             const resultsContainer = document.getElementById('results-container');
             const resultsHeader = document.getElementById('results-header');
+            const batchZipBtn = document.getElementById('batchZipBtn');
 
             loader.style.display = 'block';
 
@@ -441,6 +439,12 @@
                     if (response.ok && data.success) {
                         resultsHeader.style.display = 'flex';
                         activeFilenames.push(data.filename);
+
+                        // Eğer 1'den fazla link işlendiyse "Tüm Linkleri İndir" butonunu göster
+                        if (urls.length > 1) {
+                            batchZipBtn.style.display = 'inline-block';
+                        }
+
                         const downloadRoute = `/api/download/${data.filename}`;
                         const fullDownloadUrl = window.location.origin + downloadRoute;
                         const uniqueId = 'history-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
@@ -450,7 +454,7 @@
                         card.innerHTML = `
                             <div class="thumb-box" onclick="openModal('${data.streamUrl}', '${data.title.replace(/'/g, "\\'")}')">
                                 <img src="${data.thumbnail || 'https://via.placeholder.com/110x70'}" alt="Thumbnail">
-                                <div class="play-overlay">▶ Önizle</div>
+                                <div class="play-overlay">Önizle</div>
                                 <div class="duration-tag">${data.duration || 'Medya'}</div>
                             </div>
                             <div class="media-info">
@@ -463,7 +467,7 @@
                                 <div class="btn-group">
                                     <a href="${downloadRoute}" class="apple-dl-btn" target="_blank" onclick="markAsDownloaded('${uniqueId}')">Dosyayı İndir</a>
                                     <button class="apple-dl-btn secondary" onclick="navigator.clipboard.writeText('${fullDownloadUrl}'); showToast('Bağlantı panoya kopyalandı!');">Bağlantıyı Kopyala</button>
-                                    <button class="apple-dl-btn secondary" onclick="openQRModal('${fullDownloadUrl}')">📱 QR Kod</button>
+                                    <button class="apple-dl-btn secondary" onclick="openQRModal('${fullDownloadUrl}')">QR Kod</button>
                                 </div>
                             </div>
                         `;
@@ -487,7 +491,7 @@
 
         async function downloadAllAsZip() {
             if (activeFilenames.length === 0) return;
-            showToast('Dosyalar ZIP arşivine dönüştürülüyor...');
+            showToast('Dosyalar arşivleniyor...');
             try {
                 const response = await fetch('/api/download-zip', {
                     method: 'POST',
@@ -497,9 +501,9 @@
                 const data = await response.json();
                 if (data.success) {
                     window.open(data.zipUrl, '_blank');
-                    showToast('ZIP arşivi indiriliyor!');
+                    showToast('Arşiv indiriliyor!');
                 } else {
-                    showToast('ZIP oluşturulamadı!');
+                    showToast('Arşiv oluşturulamadı!');
                 }
             } catch(e) {
                 showToast('Sunucu hatası!');
@@ -509,6 +513,7 @@
         function clearResults() {
             document.getElementById('results-container').innerHTML = '';
             document.getElementById('results-header').style.display = 'none';
+            document.getElementById('batchZipBtn').style.display = 'none';
             activeFilenames = [];
             showToast('Sonuçlar temizlendi');
         }
