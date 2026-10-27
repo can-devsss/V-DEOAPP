@@ -103,7 +103,6 @@
         .platform-tag:hover { transform: translateY(-2px); }
         .platform-tag svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-        /* Platform Renklendirmeleri */
         .platform-tag.youtube { background: rgba(255, 0, 0, 0.08); color: #cc0000; border-color: rgba(255, 0, 0, 0.15); }
         .platform-tag.instagram { background: rgba(225, 48, 108, 0.08); color: #c13584; border-color: rgba(225, 48, 108, 0.15); }
         .platform-tag.tiktok { background: rgba(0, 0, 0, 0.06); color: var(--text-primary); border-color: rgba(0,0,0,0.12); }
@@ -204,7 +203,6 @@
         .media-meta { font-size: 11.5px; font-weight: 650; color: var(--text-secondary); margin-bottom: 12px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .meta-badge { background: var(--input-bg); padding: 3px 8px; border-radius: 8px; font-size: 10.5px; border: 1px solid var(--border-color); font-weight: 700; }
         
-        /* KART İÇİNDEKİ PLATFORM ROZETİ */
         .card-platform-tag {
             display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid rgba(0,0,0,0.06);
         }
@@ -279,15 +277,15 @@
 
     <div id="toast-container"></div>
 
-    <!-- Video Önizleme Modalı -->
+    <!-- Pürüzsüzleştirilmiş Video Önizleme Modalı (Akıllı Fallback Destekli) -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-box" style="max-width: 580px;" onclick="event.stopPropagation()">
+        <div class="modal-box" style="max-width: 620px;" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">✕</button>
             <div class="modal-header" style="text-align: left; padding-right: 40px;">
                 <span id="modal-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Medya Önizleme</span>
             </div>
-            <div style="width:100%; aspect-ratio:16/9; background:black; border-radius:14px; overflow:hidden;">
-                <video id="modal-video" controls autoplay style="width:100%; height:100%; object-fit:contain;"></video>
+            <div style="width:100%; aspect-ratio:16/9; background:#000; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                <video id="modal-video" controls autoplay playsinline style="width:100%; height:100%; object-fit:contain;"></video>
             </div>
         </div>
     </div>
@@ -449,17 +447,33 @@
             if (text) { urlInput.value = text; showToast('Bağlantı bırakıldı!'); }
         });
 
+        // AKILLI VE HATASIZ VİDEO ÖNİZLEME MODALI (FALLBACK DESTEKLİ)
         function openModal(streamUrl, title) {
             const modal = document.getElementById('modal-overlay');
             const video = document.getElementById('modal-video');
             document.getElementById('modal-title').innerText = title;
+            
+            video.pause();
             video.src = streamUrl;
             modal.style.display = 'flex';
+            
+            // Tarayıcı codeclerinde takılma/siyah ekran olursa hata yakalama
+            video.onerror = () => {
+                showToast('Önizleme oynatılamadı, dosyayı indirerek izleyebilirsiniz.');
+            };
+            
+            video.play().catch(e => {
+                console.log("Otomatik oynatma kısıtlaması:", e);
+            });
         }
+
         function closeModal() {
             const modal = document.getElementById('modal-overlay');
             const video = document.getElementById('modal-video');
-            video.pause(); video.src = ''; modal.style.display = 'none';
+            video.pause(); 
+            video.removeAttribute('src'); 
+            video.load();
+            modal.style.display = 'none';
         }
 
         function openQRModal(fullUrl) {
@@ -475,7 +489,6 @@
             return text.match(urlRegex) || [];
         }
 
-        // URL'ye göre platform adını, class'ını ve SVG ikonunu veren akıllı fonksiyon
         function detectPlatform(url) {
             const lower = url.toLowerCase();
             if (lower.includes('youtube.com') || lower.includes('youtu.be')) {
@@ -569,7 +582,6 @@
                         const fullDownloadUrl = window.location.origin + downloadRoute;
                         const uniqueId = 'history-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
                         
-                        // Hangi platformdan geldiğini tespit et
                         const platform = detectPlatform(currentUrl);
 
                         const card = document.createElement('div');
