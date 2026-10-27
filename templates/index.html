@@ -53,11 +53,13 @@
             transition: background 0.4s ease;
         }
 
+        /* Arayüz sıçramalarını engelleyen akışkan pürüzsüz pencere animasyonu */
         .mac-window {
             width: 100%; max-width: 860px; background: var(--window-bg);
             backdrop-filter: blur(60px); -webkit-backdrop-filter: blur(60px);
             border: 1px solid var(--window-border); border-radius: 26px;
             box-shadow: var(--shadow-window); overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .titlebar {
@@ -177,14 +179,14 @@
             display: flex; flex-direction: column; gap: 14px; align-items: stretch; box-shadow: var(--shadow-card);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
         .result-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(28,28,30,0.05);
         }
         @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 18px; padding: 18px; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 12px; overflow: hidden; background: #f0f0f2; border: 0.5px solid rgba(0,0,0,0.08); cursor: pointer; }
         @media (min-width: 640px) { .thumb-box { width: 125px; height: 75px; aspect-ratio: auto; } }
@@ -277,15 +279,19 @@
 
     <div id="toast-container"></div>
 
-    <!-- Pürüzsüzleştirilmiş Video Önizleme Modalı (Akıllı Fallback Destekli) -->
+    <!-- Akıllı Fallback Destekli, Sıçrama Yapmayan Pürüzsüz Video Önizleme Modalı -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box" style="max-width: 620px;" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">✕</button>
             <div class="modal-header" style="text-align: left; padding-right: 40px;">
                 <span id="modal-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Medya Önizleme</span>
             </div>
-            <div style="width:100%; aspect-ratio:16/9; background:#000; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+            <div id="video-wrapper" style="width:100%; aspect-ratio:16/9; background:#000; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative;">
                 <video id="modal-video" controls autoplay playsinline style="width:100%; height:100%; object-fit:contain;"></video>
+                <div id="video-error-msg" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.85); color:white; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; font-size:13px; font-weight:600; gap:8px;">
+                    <span>Bu video formatı tarayıcıda doğrudan oynatılamıyor.</span>
+                    <span style="font-size:11px; opacity:0.7;">Dosyayı "Dosyayı İndir" butonuna basarak sorunsuzca izleyebilirsiniz.</span>
+                </div>
             </div>
         </div>
     </div>
@@ -447,32 +453,37 @@
             if (text) { urlInput.value = text; showToast('Bağlantı bırakıldı!'); }
         });
 
-        // AKILLI VE HATASIZ VİDEO ÖNİZLEME MODALI (FALLBACK DESTEKLİ)
+        // AKILLI ÖNİZLEME MODALI VE HATA YÖNETİMİ (FALLBACK)
         function openModal(streamUrl, title) {
             const modal = document.getElementById('modal-overlay');
             const video = document.getElementById('modal-video');
+            const errorMsg = document.getElementById('video-error-msg');
+            
             document.getElementById('modal-title').innerText = title;
+            errorMsg.style.display = 'none';
             
             video.pause();
             video.src = streamUrl;
             modal.style.display = 'flex';
             
-            // Tarayıcı codeclerinde takılma/siyah ekran olursa hata yakalama
             video.onerror = () => {
-                showToast('Önizleme oynatılamadı, dosyayı indirerek izleyebilirsiniz.');
+                errorMsg.style.display = 'flex';
             };
             
             video.play().catch(e => {
-                console.log("Otomatik oynatma kısıtlaması:", e);
+                console.log("Oynatma kısıtlaması:", e);
             });
         }
 
         function closeModal() {
             const modal = document.getElementById('modal-overlay');
             const video = document.getElementById('modal-video');
+            const errorMsg = document.getElementById('video-error-msg');
+            
             video.pause(); 
             video.removeAttribute('src'); 
             video.load();
+            errorMsg.style.display = 'none';
             modal.style.display = 'none';
         }
 
