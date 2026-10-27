@@ -89,7 +89,6 @@
         @media (min-width: 640px) { .app-header h1 { font-size: 34px; } }
         .app-header p { font-size: 13.5px; color: var(--text-secondary); font-weight: 600; }
 
-        /* SOSYAL MEDYA KUTULARI (ORİJİNAL RENKLİ AMBLEMLER VE PİRAMİT / YAN YANA UYUMLU YAPI) */
         .platforms-row { 
             display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; 
             flex-wrap: wrap; padding-bottom: 4px; align-items: center;
@@ -201,8 +200,21 @@
 
         .media-info { flex: 1; min-width: 0; }
         .media-info h3 { font-size: 13.5px; font-weight: 800; margin-bottom: 5px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
         .media-meta { font-size: 11.5px; font-weight: 650; color: var(--text-secondary); margin-bottom: 12px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .meta-badge { background: var(--input-bg); padding: 3px 8px; border-radius: 8px; font-size: 10.5px; border: 1px solid var(--border-color); font-weight: 700; }
+        
+        /* KART İÇİNDEKİ PLATFORM ROZETİ */
+        .card-platform-tag {
+            display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid rgba(0,0,0,0.06);
+        }
+        .card-platform-tag svg { width: 10px; height: 10px; flex-shrink: 0; }
+        .card-platform-tag.youtube { background: rgba(255, 0, 0, 0.08); color: #cc0000; border-color: rgba(255, 0, 0, 0.15); }
+        .card-platform-tag.instagram { background: rgba(225, 48, 108, 0.08); color: #c13584; border-color: rgba(225, 48, 108, 0.15); }
+        .card-platform-tag.tiktok { background: rgba(0, 0, 0, 0.06); color: var(--text-primary); border-color: rgba(0,0,0,0.12); }
+        body.dark-mode .card-platform-tag.tiktok { background: rgba(255, 255, 255, 0.08); color: #f5f5f7; border-color: rgba(255,255,255,0.15); }
+        .card-platform-tag.twitter { background: rgba(29, 161, 242, 0.08); color: #1da1f2; border-color: rgba(29, 161, 242, 0.15); }
+        .card-platform-tag.pinterest { background: rgba(189, 8, 28, 0.08); color: #bd081c; border-color: rgba(189, 8, 28, 0.15); }
 
         .btn-group { display: flex; gap: 8px; flex-direction: column; }
         @media (min-width: 640px) { .btn-group { flex-direction: row; flex-wrap: wrap; } }
@@ -306,7 +318,6 @@
                 <p>YouTube, Instagram, TikTok ve X platformlarından yüksek kalitede medya indirin.</p>
             </div>
 
-            <!-- Sosyal Medya Amblemleri ve Renkli Kutular -->
             <div class="platforms-row">
                 <div class="platform-tag youtube">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
@@ -384,7 +395,6 @@
             }
         });
 
-        // SADECE BAŞARILI İNDİRME HAZIR OLDUĞUNDA ÇALAN MAC ONAY SESİ
         function playSuccessSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -465,6 +475,47 @@
             return text.match(urlRegex) || [];
         }
 
+        // URL'ye göre platform adını, class'ını ve SVG ikonunu veren akıllı fonksiyon
+        function detectPlatform(url) {
+            const lower = url.toLowerCase();
+            if (lower.includes('youtube.com') || lower.includes('youtu.be')) {
+                return {
+                    name: 'YouTube',
+                    className: 'youtube',
+                    svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>'
+                };
+            } else if (lower.includes('instagram.com')) {
+                return {
+                    name: 'Instagram',
+                    className: 'instagram',
+                    svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>'
+                };
+            } else if (lower.includes('tiktok.com')) {
+                return {
+                    name: 'TikTok',
+                    className: 'tiktok',
+                    svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>'
+                };
+            } else if (lower.includes('twitter.com') || lower.includes('x.com')) {
+                return {
+                    name: 'X (Twitter)',
+                    className: 'twitter',
+                    svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+                };
+            } else if (lower.includes('pinterest.com')) {
+                return {
+                    name: 'Pinterest',
+                    className: 'pinterest',
+                    svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.399.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.221 7.462-1.214 0-2.354-.63-2.74-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>'
+                };
+            }
+            return {
+                name: 'Medya',
+                className: 'tiktok',
+                svg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>'
+            };
+        }
+
         async function extractMedia() {
             const rawText = urlInput.value.trim();
             if (!rawText) { showToast('Lütfen en az bir bağlantı adresi girin!'); return; }
@@ -498,7 +549,6 @@
                 loaderText.innerText = `İşleniyor (${i + 1}/${urls.length}): Medya hazırlanıyor... (%${percent})`;
                 progressFill.style.width = percent + '%';
 
-                const startTime = performance.now();
                 try {
                     const response = await fetch('/api/extract', {
                         method: 'POST',
@@ -506,7 +556,6 @@
                         body: JSON.stringify({ url: currentUrl, quality: selectedQuality })
                     });
                     const data = await response.json();
-                    const endTime = performance.now();
 
                     if (response.ok && data.success) {
                         resultsHeader.style.display = 'flex';
@@ -520,6 +569,9 @@
                         const fullDownloadUrl = window.location.origin + downloadRoute;
                         const uniqueId = 'history-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
                         
+                        // Hangi platformdan geldiğini tespit et
+                        const platform = detectPlatform(currentUrl);
+
                         const card = document.createElement('div');
                         card.className = 'result-card';
                         card.innerHTML = `
@@ -531,6 +583,7 @@
                             <div class="media-info">
                                 <h3>${data.title}</h3>
                                 <div class="media-meta">
+                                    <span class="card-platform-tag ${platform.className}">${platform.svg} ${platform.name}</span>
                                     <span>Format: ${data.ext.toUpperCase()}</span>
                                     <span class="meta-badge">${data.filesize}</span>
                                     <span class="meta-badge">${data.uploader}</span>
@@ -545,8 +598,6 @@
                         resultsContainer.prepend(card);
                         addToHistory(uniqueId, data.title + ` (${data.ext.toUpperCase()})`);
                         
-                        // Gerçek İndirme Hızı Hesaplaması (Gerçekçi ve net)
-                        const durationSec = (endTime - startTime) / 1000;
                         showToast('Medya başarıyla hazırlandı!');
                         playSuccessSound();
                     } else {
