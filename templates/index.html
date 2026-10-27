@@ -2,18 +2,18 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CAN STUDIO — Media Suite</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --mac-bg: #d7d8dc;
-            --window-bg: rgba(255, 255, 255, 0.9);
+            --window-bg: rgba(255, 255, 255, 0.88);
             --window-border: rgba(255, 255, 255, 0.98);
             --input-bg: rgba(0, 0, 0, 0.045);
             --input-bg-focus: #ffffff;
-            --apple-blue: #2c2c2e; /* İstediğin gibi tok/koyu füme-gri tonu */
-            --apple-blue-hover: #1a1a1c; /* Üzerine gelince daha da koyulaşan tok ton */
+            --apple-blue: #2c2c2e;
+            --apple-blue-hover: #1a1a1c;
             --text-primary: #1d1d1f;
             --text-secondary: #515156;
             --border-color: rgba(0, 0, 0, 0.1);
@@ -23,7 +23,7 @@
 
         body.dark-mode {
             --mac-bg: #1e1e20;
-            --window-bg: rgba(30, 30, 32, 0.85);
+            --window-bg: rgba(30, 30, 32, 0.82);
             --window-border: rgba(255, 255, 255, 0.12);
             --input-bg: rgba(255, 255, 255, 0.06);
             --input-bg-focus: rgba(255, 255, 255, 0.1);
@@ -38,9 +38,11 @@
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", 'Plus Jakarta Sans', sans-serif;
             -webkit-font-smoothing: antialiased;
-            transition: background 0.3s ease, color 0.3s ease;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            word-break: break-word;
         }
         
         body {
@@ -53,7 +55,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px 12px;
+            padding: 16px 10px;
         }
 
         .mac-window {
@@ -70,7 +72,7 @@
 
         .titlebar {
             height: 42px;
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.65);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -79,11 +81,33 @@
             position: relative;
         }
 
+        body.dark-mode .titlebar {
+            background: rgba(30, 30, 32, 0.5);
+        }
+
+        /* macOS Trafik Işıkları */
+        .mac-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            position: absolute;
+            left: 16px;
+        }
+        .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.red { background: #ff5f56; border: 0.5px solid rgba(0,0,0,0.15); }
+        .dot.yellow { background: #ffbd2e; border: 0.5px solid rgba(0,0,0,0.15); }
+        .dot.green { background: #27c93f; border: 0.5px solid rgba(0,0,0,0.15); }
+
         .window-title {
-            font-size: 13.5px;
-            font-weight: 800;
+            font-size: 13px;
+            font-weight: 700;
             color: var(--text-primary);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             margin: 0 auto;
         }
 
@@ -91,7 +115,7 @@
             display: flex;
             gap: 8px;
             position: absolute;
-            right: 20px;
+            right: 16px;
         }
 
         .icon-btn {
@@ -103,71 +127,64 @@
             font-size: 11.5px;
             font-weight: 700;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
         .icon-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
+        .icon-btn:active { transform: scale(0.96); }
 
         .window-content { 
-            padding: 24px 18px; 
+            padding: 24px 16px; 
         }
         @media (min-width: 640px) { 
-            .window-content { 
-                padding: 40px; 
-            } 
+            .window-content { padding: 36px 40px; } 
         }
 
         .app-header { text-align: center; margin-bottom: 22px; }
         .app-header h1 { 
-            font-size: 24px; 
+            font-size: 22px; 
             font-weight: 800; 
-            letter-spacing: -0.8px; 
-            margin-bottom: 8px; 
+            letter-spacing: -0.6px; 
+            margin-bottom: 6px; 
             color: var(--text-primary); 
         }
-        @media (min-width: 640px) { .app-header h1 { font-size: 32px; } }
+        @media (min-width: 640px) { .app-header h1 { font-size: 30px; } }
         
         .app-header p { 
-            font-size: 13px; 
+            font-size: 12.5px; 
             color: var(--text-secondary); 
             font-weight: 600; 
-            padding: 0 8px;
+            padding: 0 4px;
         }
-        @media (min-width: 640px) { .app-header p { font-size: 14.5px; padding: 0; } }
+        @media (min-width: 640px) { .app-header p { font-size: 14px; padding: 0; } }
 
         .platforms-row { 
             display: flex; 
             justify-content: center; 
             gap: 4px; 
-            margin-bottom: 22px; 
+            margin-bottom: 20px; 
             flex-wrap: wrap; 
         }
-        @media (min-width: 640px) {
-            .platforms-row { gap: 6px; }
-        }
+        @media (min-width: 640px) { .platforms-row { gap: 6px; } }
 
         .platform-tag {
             background: var(--input-bg); 
             border: 1px solid var(--border-color);
-            padding: 4px 7px; 
+            padding: 4px 8px; 
             border-radius: 8px; 
             font-size: 10px; 
             font-weight: 700; 
             color: var(--text-secondary);
             white-space: nowrap;
         }
-        @media (min-width: 640px) {
-            .platform-tag {
-                padding: 5px 12px;
-                font-size: 11.5px;
-            }
-        }
+        @media (min-width: 640px) { .platform-tag { padding: 5px 12px; font-size: 11.5px; } }
 
         .segmented-control {
             display: flex;
             background: var(--input-bg);
             padding: 4px;
             border-radius: 12px;
-            max-width: 440px;
-            margin: 0 auto 20px auto;
+            max-width: 400px;
+            margin: 0 auto 18px auto;
             border: 1px solid var(--border-color);
         }
         .segment-btn {
@@ -181,7 +198,7 @@
             border-radius: 9px;
             cursor: pointer;
             transition: all 0.2s ease;
-            height: 42px;
+            height: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -195,52 +212,77 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border: 1px solid var(--border-color);
         }
+        .segment-btn:active { transform: scale(0.97); }
 
         .search-field-container {
-            background: var(--input-bg); border: 1px solid var(--border-color);
-            padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); transition: all 0.2s ease;
+            background: var(--input-bg); 
+            border: 1px solid var(--border-color);
+            padding: 12px; 
+            border-radius: 14px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); 
+            transition: all 0.2s ease;
         }
         .search-field-container:focus-within {
-            background: var(--input-bg-focus); border-color: var(--apple-blue);
-            box-shadow: 0 0 0 3px rgba(44, 44, 46, 0.15);
+            background: var(--input-bg-focus); 
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(44, 44, 46, 0.12);
         }
         
         .search-field-container textarea {
-            width: 100%; background: transparent; border: none; outline: none;
-            padding: 4px; font-size: 14px; font-weight: 600; color: var(--text-primary);
-            resize: none; height: 64px;
+            width: 100%; 
+            background: transparent; 
+            border: none; 
+            outline: none;
+            padding: 4px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: var(--text-primary);
+            resize: none; 
+            height: 60px;
+            -webkit-appearance: none;
         }
         @media (min-width: 640px) {
-            .search-field-container textarea { height: 42px; white-space: nowrap; overflow-x: auto; overflow-y: hidden; }
+            .search-field-container textarea { height: 40px; }
         }
         .search-field-container textarea::placeholder { color: var(--text-secondary); font-weight: 500; }
 
-        .search-bottom-row { display: flex; justify-content: flex-end; align-items: center; padding: 0; }
+        .search-bottom-row { display: flex; justify-content: flex-end; align-items: center; }
 
         .apple-button {
-            background: var(--apple-blue); color: white; border: none;
-            padding: 0 22px; border-radius: 9px; font-weight: 700; font-size: 13px;
-            cursor: pointer; height: 38px; transition: background 0.15s ease;
+            background: var(--apple-blue); 
+            color: white; 
+            border: none;
+            padding: 0 20px; 
+            border-radius: 9px; 
+            font-weight: 700; 
+            font-size: 13px;
+            cursor: pointer; 
+            height: 38px; 
+            transition: background 0.15s ease, transform 0.1s ease;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
             width: 100%;
+            -webkit-appearance: none;
         }
         @media (min-width: 640px) { .apple-button { width: auto; } }
         .apple-button:hover { background: var(--apple-blue-hover); }
+        .apple-button:active { transform: scale(0.97); }
 
-        #loader { display: none; text-align: center; padding: 25px 0; color: var(--text-secondary); font-size: 13.5px; font-weight: 600; }
+        #loader { display: none; text-align: center; padding: 22px 0; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
         .spinner {
-            width: 24px; height: 24px; border: 2.5px solid rgba(0, 0, 0, 0.1);
+            width: 22px; height: 22px; border: 2.5px solid rgba(0, 0, 0, 0.1);
             border-top-color: var(--apple-blue); border-radius: 50%;
-            animation: spin 0.6s linear infinite; margin: 0 auto 10px auto;
+            animation: spin 0.6s linear infinite; margin: 0 auto 8px auto;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .results-header-row {
-            display: flex; justify-content: space-between; align-items: center; margin-top: 24px; margin-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center; margin-top: 22px; margin-bottom: 8px;
         }
-        .results-title { font-size: 13px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.4px; }
-        .clear-results-btn { font-size: 12px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
+        .results-title { font-size: 12.5px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.4px; }
+        .clear-results-btn { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
         .clear-results-btn:hover { color: var(--text-primary); }
 
         #results-container {
@@ -253,12 +295,12 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color); 
             border-radius: 14px; 
-            padding: 14px;
+            padding: 12px;
             display: flex; 
             flex-direction: column;
             gap: 12px; 
             align-items: stretch;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             animation: fadeIn 0.3s ease;
         }
         @media (min-width: 640px) {
@@ -267,55 +309,58 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #f0f0f2; border: 0.5px solid rgba(0,0,0,0.08); cursor: pointer; }
-        @media (min-width: 640px) { .thumb-box { width: 120px; height: 75px; aspect-ratio: auto; } }
+        @media (min-width: 640px) { .thumb-box { width: 110px; height: 70px; aspect-ratio: auto; } }
         
         .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
         .play-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s; color: white; font-weight: 800; font-size: 12px;
+            position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s; color: white; font-weight: 800; font-size: 11.5px;
         }
         .thumb-box:hover .play-overlay { opacity: 1; }
         
         .duration-tag {
-            position: absolute; bottom: 4px; right: 4px; background: rgba(0, 0, 0, 0.8);
-            color: white; padding: 2px 5px; border-radius: 4px; font-size: 10px; font-weight: 700;
+            position: absolute; bottom: 4px; right: 4px; background: rgba(0, 0, 0, 0.75);
+            color: white; padding: 2px 5px; border-radius: 4px; font-size: 9.5px; font-weight: 700;
         }
         .media-info { flex: 1; min-width: 0; }
-        .media-info h3 { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .media-meta { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .media-info h3 { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .media-meta { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         
-        .meta-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 4px; font-size: 10.5px; border: 1px solid var(--border-color); }
+        .meta-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 4px; font-size: 10px; border: 1px solid var(--border-color); }
 
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-group { display: flex; gap: 8px; flex-direction: column; }
+        @media (min-width: 640px) { .btn-group { flex-direction: row; } }
+
         .apple-dl-btn {
             background: var(--apple-blue); color: white; padding: 8px 14px;
-            border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 12px;
-            display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s;
-            justify-content: center; flex: 1;
+            border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 11.5px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 4px; 
+            transition: opacity 0.15s, transform 0.1s;
+            -webkit-appearance: none;
         }
-        @media (min-width: 640px) { .apple-dl-btn { flex: initial; } }
         .apple-dl-btn:hover { opacity: 0.9; }
+        .apple-dl-btn:active { transform: scale(0.97); }
         .apple-dl-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
         .apple-dl-btn.secondary:hover { background: var(--border-color); }
 
         .history-box {
-            margin-top: 22px; background: var(--card-bg); border: 1px solid var(--border-color);
+            margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 14px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
         .history-header {
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 12px; font-weight: 800; color: var(--text-secondary); margin-bottom: 10px; letter-spacing: 0.4px;
+            font-size: 11.5px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 0.3px;
         }
-        .history-header span:last-child { color: var(--text-secondary); cursor: pointer; font-weight: 700; }
+        .history-header span:last-child { cursor: pointer; font-weight: 700; }
         .history-header span:last-child:hover { color: var(--text-primary); }
 
-        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 110px; overflow-y: auto; }
         .history-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 10px; background: var(--input-bg); border-radius: 8px; font-size: 12px; color: var(--text-secondary); gap: 8px;
+            padding: 7px 10px; background: var(--input-bg); border-radius: 8px; font-size: 11.5px; color: var(--text-secondary); gap: 8px;
         }
-        .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; color: var(--text-primary); font-weight: 700; }
-        @media (min-width: 640px) { .history-row span:first-child { max-width: 460px; } }
+        .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 700; }
+        @media (min-width: 640px) { .history-row span:first-child { max-width: 450px; } }
 
         #toast-container {
             position: fixed; top: 20px; right: 20px; z-index: 9999;
@@ -323,7 +368,7 @@
         }
         .mac-toast {
             background: rgba(30, 30, 32, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            color: white; padding: 12px 18px; border-radius: 12px; font-size: 13px; font-weight: 700;
+            color: white; padding: 12px 18px; border-radius: 12px; font-size: 12.5px; font-weight: 700;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
             animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; pointer-events: auto;
         }
@@ -336,10 +381,10 @@
         }
         @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
         .modal-box {
-            width: 100%; max-width: 700px; background: var(--window-bg); border: 1px solid var(--window-border);
-            border-radius: 16px; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.5); padding: 16px; display: flex; flex-direction: column; gap: 14px;
+            width: 100%; max-width: 680px; background: var(--window-bg); border: 1px solid var(--window-border);
+            border-radius: 16px; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.5); padding: 16px; display: flex; flex-direction: column; gap: 12px;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 14px; color: var(--text-primary); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13.5px; color: var(--text-primary); }
         .modal-close { background: var(--input-bg); border: none; color: var(--text-primary); width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: 800; }
         .modal-video-container { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 10px; overflow: hidden; }
         .modal-video-container video { width: 100%; height: 100%; object-fit: contain; outline: none; }
@@ -363,6 +408,11 @@
 
     <div class="mac-window">
         <div class="titlebar">
+            <div class="mac-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+            </div>
             <div class="window-title">CAN STUDIO</div>
             <div class="top-actions">
                 <button class="icon-btn" onclick="toggleDarkMode()">🌓 Tema</button>
@@ -385,15 +435,15 @@
 
             <div class="segmented-control">
                 <button class="segment-btn active" id="btn-best" onclick="setQuality('best', this)">
-                    <span>En İyi</span><span>Kalite</span>
+                    <span>En İyi Kalite</span>
                 </button>
                 <button class="segment-btn" id="btn-audio" onclick="setQuality('audio', this)">
-                    <span>Sadece Ses</span><span>(MP3)</span>
+                    <span>Sadece Ses (MP3)</span>
                 </button>
             </div>
 
             <div class="search-field-container">
-                <textarea id="urlInput" placeholder="Bağlantıyı yapıştırın..."></textarea>
+                <textarea id="urlInput" placeholder="Bağlantıyı buraya yapıştırın..."></textarea>
                 <div class="search-bottom-row">
                     <button class="apple-button" onclick="extractMedia()">Linki Getir</button>
                 </div>
@@ -416,7 +466,7 @@
                     <span onclick="clearHistory()">Temizle</span>
                 </div>
                 <div id="historyList" class="history-list">
-                    <div style="font-size: 12.5px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 6px;">Geçmiş boş.</div>
+                    <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>
                 </div>
             </div>
         </div>
@@ -513,7 +563,7 @@
                         card.className = 'result-card';
                         card.innerHTML = `
                             <div class="thumb-box" onclick="openModal('${data.streamUrl}', '${data.title.replace(/'/g, "\\'")}')">
-                                <img src="${data.thumbnail || 'https://via.placeholder.com/120x75'}" alt="Thumbnail">
+                                <img src="${data.thumbnail || 'https://via.placeholder.com/110x70'}" alt="Thumbnail">
                                 <div class="play-overlay">▶ Önizle</div>
                                 <div class="duration-tag">${data.duration || 'Medya'}</div>
                             </div>
@@ -569,7 +619,7 @@
         function renderHistory() {
             const list = document.getElementById('historyList');
             if (downloadHistory.length === 0) {
-                list.innerHTML = '<div style="font-size: 12.5px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 6px;">Geçmiş boş.</div>';
+                list.innerHTML = '<div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: center; padding: 4px;">Geçmiş boş.</div>';
                 return;
             }
             list.innerHTML = downloadHistory.map(item => `
