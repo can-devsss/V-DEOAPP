@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, jsonify, send_file
 from flask_cors import CORS
 import yt_dlp
 import os
+import time
+import uuid
+import threading
 
 app = Flask(__name__, template_folder='templates')
 CORS(app)
@@ -10,6 +13,20 @@ DOWNLOAD_FOLDER = os.path.abspath('downloads')
 if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
 
+download_lock = threading.Lock()
+
+def cleanup_old_downloads(max_age_seconds=3600):
+    """Downloads klasöründe 1 saatten eski geçici dosyaları temizler."""
+    try:
+        now = time.time()
+        for filename in os.listdir(DOWNLOAD_FOLDER):
+            filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+            if os.path.isfile(filepath):
+                if now - os.path.getmtime(filepath) > max_age_seconds:
+                    os.remove(filepath)
+    except Exception as e:
+        print(f"Temizlik hatası: {e}")
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -17,6 +34,9 @@ def home():
 @app.route('/api/extract', methods=['POST'])
 def extract_media():
     try:
+        # Eski dosyaları arka planda temizle
+        threading.Thread(target=cleanup_old_downloads).start()
+
         data = request.get_json()
         if not data:
             return jsonify({'success': False, 'error': 'Geçersiz veri biçimi.'}), 400
@@ -30,9 +50,12 @@ def extract_media():
         url = url.strip()
         cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
 
+        # Çakışmaları önlemek için benzersiz bir önek (unique prefix) üretiyoruz
+        unique_id = uuid.uuid4().hex[:8]
+
         ydl_opts = {
             'quiet': True,
-            'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(id)s.%(ext)s'),
+            'outtmpl': os.path.join(DOWNLOAD_FOLDER, f'%(id)s_{unique_id}.%(ext)s'),
             'no_warnings': True,
             'ignoreerrors': True,
             'socket_timeout': 30,
@@ -63,16 +86,17 @@ def extract_media():
         else:
             ydl_opts.update({'format': 'best/best'})
         
-        # Tek seferde hem bilgileri alıp hem indirerek süreci maksimum hıza çıkarıyoruz
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            if not info:
-                return jsonify({'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}), 400
+        # Thread kilidi ile aynı anda yazma çakışmalarını tamamen engelliyoruz
+        with download_lock:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                if not info:
+                    return jsonify({'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}), 400
 
-            video_id = info.get('id', 'media')
-            ext = 'mp3' if quality == 'audio' else info.get('ext', 'mp4')
-            filename = f"{video_id}.{ext}"
-            filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+                video_id = info.get('id', 'media')
+                ext = 'mp3' if quality == 'audio' else info.get('ext', 'mp4')
+                filename = f"{video_id}_{unique_id}.{ext}"
+                filepath = os.path.join(DOWNLOAD_FOLDER, filename)
 
         file_size_mb = "Bilinmiyor"
         if os.path.exists(filepath):
