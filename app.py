@@ -5,6 +5,7 @@ import os
 import time
 import uuid
 import threading
+import zipfile
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates')
@@ -17,7 +18,7 @@ if not os.path.exists(DOWNLOAD_FOLDER):
 download_lock = threading.Lock()
 
 def cleanup_old_downloads(max_age_seconds=3600):
-    """Downloads klasöründe 1 saatten eski geçici dosyaları temizler."""
+    """1 saatten eski geçici dosyaları temizler."""
     try:
         now = time.time()
         for filename in os.listdir(DOWNLOAD_FOLDER):
@@ -35,7 +36,6 @@ def home():
 @app.route('/api/extract', methods=['POST'])
 def extract_media():
     try:
-        # Eski dosyaları arka planda temizle
         threading.Thread(target=cleanup_old_downloads).start()
 
         data = request.get_json()
@@ -50,8 +50,6 @@ def extract_media():
 
         url = url.strip()
         cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
-
-        # Çakışmaları önlemek için benzersiz bir önek (unique prefix) üretiyoruz
         unique_id = uuid.uuid4().hex[:8]
 
         ydl_opts = {
@@ -87,7 +85,6 @@ def extract_media():
         else:
             ydl_opts.update({'format': 'best/best'})
         
-        # Thread kilidi ile aynı anda yazma çakışmalarını tamamen engelliyoruz
         with download_lock:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -121,6 +118,28 @@ def extract_media():
 
     except Exception as e:
         return jsonify({'success': False, 'error': f'İşlem hatası: {str(e)}'}), 500
+
+@app.route('/api/download-zip', methods=['POST'])
+def download_zip():
+    try:
+        data = request.get_json()
+        filenames = data.get('filenames', [])
+        if not filenames:
+            return jsonify({'success': False, 'error': 'Dosya listesi boş.'}), 400
+
+        zip_filename = f"can_studio_batch_{uuid.uuid4().hex[:6]}.zip"
+        zip_path = os.path.join(DOWNLOAD_FOLDER, zip_filename)
+
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for fname in filenames:
+                safe_name = secure_filename(fname)
+                fpath = os.path.join(DOWNLOAD_FOLDER, safe_name)
+                if os.path.exists(fpath):
+                    zipf.write(fpath, arcname=safe_name)
+
+        return jsonify({'success': True, 'zipUrl': f"/api/download/{zip_filename}"})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/download/<filename>', methods=['GET'])
 def download_file(filename):
