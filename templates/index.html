@@ -53,7 +53,6 @@
             transition: background 0.4s ease;
         }
 
-        /* Arayüz sıçramalarını engelleyen akışkan pürüzsüz pencere animasyonu */
         .mac-window {
             width: 100%; max-width: 860px; background: var(--window-bg);
             backdrop-filter: blur(60px); -webkit-backdrop-filter: blur(60px);
@@ -174,12 +173,13 @@
 
         #results-container { display: flex; flex-direction: column; gap: 14px; }
 
+        /* KARTLARIN OPTİMİZASYONU VE KAYMA ÖNLEME */
         .result-card {
             background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 16px;
             display: flex; flex-direction: column; gap: 14px; align-items: stretch; box-shadow: var(--shadow-card);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
-            animation: fadeIn 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            animation: fadeIn 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
         .result-card:hover {
             transform: translateY(-2px);
@@ -200,15 +200,16 @@
         .duration-tag { position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.75); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
 
         .media-info { flex: 1; min-width: 0; }
-        .media-info h3 { font-size: 13.5px; font-weight: 800; margin-bottom: 5px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .media-info h3 { font-size: 13.5px; font-weight: 800; margin-bottom: 6px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
+        /* META ALANI KAYMALARI ENGELLEYEN DÜZEN */
         .media-meta { font-size: 11.5px; font-weight: 650; color: var(--text-secondary); margin-bottom: 12px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-        .meta-badge { background: var(--input-bg); padding: 3px 8px; border-radius: 8px; font-size: 10.5px; border: 1px solid var(--border-color); font-weight: 700; }
+        .meta-badge { background: var(--input-bg); padding: 3px 8px; border-radius: 8px; font-size: 10.5px; border: 1px solid var(--border-color); font-weight: 700; white-space: nowrap; }
         
         .card-platform-tag {
-            display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; border: 1px solid rgba(0,0,0,0.06);
+            display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; border: 1px solid rgba(0,0,0,0.06); white-space: nowrap;
         }
-        .card-platform-tag svg { width: 10px; height: 10px; flex-shrink: 0; }
+        .card-platform-tag svg { width: 11px; height: 11px; flex-shrink: 0; }
         .card-platform-tag.youtube { background: rgba(255, 0, 0, 0.08); color: #cc0000; border-color: rgba(255, 0, 0, 0.15); }
         .card-platform-tag.instagram { background: rgba(225, 48, 108, 0.08); color: #c13584; border-color: rgba(225, 48, 108, 0.15); }
         .card-platform-tag.tiktok { background: rgba(0, 0, 0, 0.06); color: var(--text-primary); border-color: rgba(0,0,0,0.12); }
@@ -279,7 +280,7 @@
 
     <div id="toast-container"></div>
 
-    <!-- Akıllı Fallback Destekli, Sıçrama Yapmayan Pürüzsüz Video Önizleme Modalı -->
+    <!-- Güçlendirilmiş Önizleme Modalı ve Akıllı Fallback Ekranı -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box" style="max-width: 620px;" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">✕</button>
@@ -287,10 +288,10 @@
                 <span id="modal-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Medya Önizleme</span>
             </div>
             <div id="video-wrapper" style="width:100%; aspect-ratio:16/9; background:#000; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative;">
-                <video id="modal-video" controls autoplay playsinline style="width:100%; height:100%; object-fit:contain;"></video>
-                <div id="video-error-msg" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.85); color:white; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; font-size:13px; font-weight:600; gap:8px;">
-                    <span>Bu video formatı tarayıcıda doğrudan oynatılamıyor.</span>
-                    <span style="font-size:11px; opacity:0.7;">Dosyayı "Dosyayı İndir" butonuna basarak sorunsuzca izleyebilirsiniz.</span>
+                <video id="modal-video" controls autoplay playsinline preload="auto" style="width:100%; height:100%; object-fit:contain;"></video>
+                <div id="video-error-msg" style="display:none; position:absolute; inset:0; background:rgba(20,20,22,0.95); backdrop-filter:blur(10px); color:white; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; font-size:13.5px; font-weight:700; gap:10px; z-index:5;">
+                    <span style="font-size:15px;">⚠️ Bu format tarayıcıda doğrudan oynatılamıyor</span>
+                    <span style="font-size:12px; opacity:0.75; font-weight:500;">X (Twitter) veya korumalı bazı TikTok akışları tarayıcı kısıtlamasına takılır. Dosyayı doğrudan indirerek kusursuzca izleyebilirsiniz.</span>
                 </div>
             </div>
         </div>
@@ -328,7 +329,7 @@
                     YouTube
                 </div>
                 <div class="platform-tag instagram">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>'
                     Instagram
                 </div>
                 <div class="platform-tag tiktok">
@@ -453,7 +454,7 @@
             if (text) { urlInput.value = text; showToast('Bağlantı bırakıldı!'); }
         });
 
-        // AKILLI ÖNİZLEME MODALI VE HATA YÖNETİMİ (FALLBACK)
+        // GELİŞTİRİLMİŞ ÖNİZLEME MODALI VE AKILLI HATA YÖNETİMİ
         function openModal(streamUrl, title) {
             const modal = document.getElementById('modal-overlay');
             const video = document.getElementById('modal-video');
@@ -466,6 +467,7 @@
             video.src = streamUrl;
             modal.style.display = 'flex';
             
+            // Eğer tarayıcı videoyu yükleyemezse veya codec hatası verirse fallback göster
             video.onerror = () => {
                 errorMsg.style.display = 'flex';
             };
@@ -607,7 +609,7 @@
                                 <h3>${data.title}</h3>
                                 <div class="media-meta">
                                     <span class="card-platform-tag ${platform.className}">${platform.svg} ${platform.name}</span>
-                                    <span>Format: ${data.ext.toUpperCase()}</span>
+                                    <span class="meta-badge">Format: ${data.ext.toUpperCase()}</span>
                                     <span class="meta-badge">${data.filesize}</span>
                                     <span class="meta-badge">${data.uploader}</span>
                                 </div>
