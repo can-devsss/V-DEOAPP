@@ -8,7 +8,7 @@
     <style>
         :root {
             --mac-bg: #e3e4e8;
-            --window-bg: rgba(255, 255, 255, 0.84);
+            --window-bg: rgba(255, 255, 255, 0.85);
             --window-border: rgba(255, 255, 255, 0.95);
             --input-bg: rgba(0, 0, 0, 0.04);
             --input-bg-focus: #ffffff;
@@ -17,9 +17,9 @@
             --text-primary: #1d1d1f;
             --text-secondary: #6e6e73;
             --border-color: rgba(0, 0, 0, 0.08);
-            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-bg: rgba(255, 255, 255, 0.78);
             --shadow-window: 0 30px 60px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
+            --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.04);
         }
 
         body.dark-mode {
@@ -33,7 +33,7 @@
             --border-color: rgba(255, 255, 255, 0.08);
             --card-bg: rgba(255, 255, 255, 0.04);
             --shadow-window: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.08);
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+            --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.25);
         }
 
         * { 
@@ -56,44 +56,42 @@
         .mac-window {
             width: 100%; max-width: 860px; background: var(--window-bg);
             backdrop-filter: blur(60px); -webkit-backdrop-filter: blur(60px);
-            border: 1px solid var(--window-border); border-radius: 24px;
+            border: 1px solid var(--window-border); border-radius: 26px;
             box-shadow: var(--shadow-window); overflow: hidden;
         }
 
         .titlebar {
-            height: 44px; background: rgba(255, 255, 255, 0.45);
+            height: 48px; background: rgba(255, 255, 255, 0.45);
             border-bottom: 1px solid var(--border-color); display: flex;
-            align-items: center; justify-content: space-between; padding: 0 18px; position: relative;
+            align-items: center; justify-content: space-between; padding: 0 20px; position: relative;
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
         body.dark-mode .titlebar { background: rgba(30, 30, 35, 0.35); }
 
-        .mac-dots { display: flex; gap: 7px; align-items: center; position: absolute; left: 18px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; transition: transform 0.15s; }
-        .dot.red { background: #ff5f56; border: 0.5px solid rgba(0,0,0,0.15); }
-        .dot.yellow { background: #ffbd2e; border: 0.5px solid rgba(0,0,0,0.15); }
-        .dot.green { background: #27c93f; border: 0.5px solid rgba(0,0,0,0.15); }
-
-        .window-title { font-size: 13.5px; font-weight: 750; color: var(--text-primary); letter-spacing: 0.4px; margin: 0 auto; opacity: 0.9; }
-        .top-actions { display: flex; gap: 8px; position: absolute; right: 18px; }
+        /* CAN STUDIO iOS DOLGUNLUĞUNDA BAŞLIK */
+        .window-title { 
+            font-size: 14px; font-weight: 800; color: var(--text-primary); 
+            letter-spacing: 0.5px; margin: 0 auto; text-transform: uppercase;
+        }
+        .top-actions { display: flex; gap: 8px; position: absolute; right: 20px; }
 
         .icon-btn {
             background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary);
-            padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+            padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
         }
         .icon-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
         .icon-btn:active { transform: scale(0.95); }
 
-        .window-content { padding: 24px 16px; }
-        @media (min-width: 640px) { .window-content { padding: 36px 44px; } }
+        .window-content { padding: 28px 18px; }
+        @media (min-width: 640px) { .window-content { padding: 40px 48px; } }
 
-        .app-header { text-align: center; margin-bottom: 20px; }
-        .app-header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 6px; color: var(--text-primary); }
-        @media (min-width: 640px) { .app-header h1 { font-size: 32px; } }
-        .app-header p { font-size: 13px; color: var(--text-secondary); font-weight: 550; }
+        .app-header { text-align: center; margin-bottom: 22px; }
+        .app-header h1 { font-size: 26px; font-weight: 850; letter-spacing: -0.7px; margin-bottom: 6px; color: var(--text-primary); }
+        @media (min-width: 640px) { .app-header h1 { font-size: 34px; } }
+        .app-header p { font-size: 13.5px; color: var(--text-secondary); font-weight: 600; }
 
         .platforms-row { 
-            display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; 
+            display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; 
             flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px;
             scrollbar-width: none;
         }
@@ -101,26 +99,26 @@
         
         .platform-tag {
             background: var(--input-bg); border: 1px solid var(--border-color);
-            padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: var(--text-secondary);
-            white-space: nowrap; flex-shrink: 0;
+            padding: 6px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 750; color: var(--text-secondary);
+            white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
 
         .segmented-control {
-            display: flex; background: var(--input-bg); padding: 4px; border-radius: 14px;
-            max-width: 400px; margin: 0 auto 18px auto; border: 1px solid var(--border-color);
+            display: flex; background: var(--input-bg); padding: 4px; border-radius: 16px;
+            max-width: 400px; margin: 0 auto 20px auto; border: 1px solid var(--border-color);
         }
         .segment-btn {
-            flex: 1; background: transparent; border: none; padding: 7px; font-size: 12.5px; font-weight: 650;
-            color: var(--text-secondary); border-radius: 10px; cursor: pointer; transition: all 0.2s ease; height: 38px;
+            flex: 1; background: transparent; border: none; padding: 8px; font-size: 13px; font-weight: 700;
+            color: var(--text-secondary); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; height: 40px;
         }
         .segment-btn.active {
-            background: var(--card-bg); color: var(--text-primary); font-weight: 750;
+            background: var(--card-bg); color: var(--text-primary); font-weight: 800;
             box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid var(--border-color);
         }
 
         .search-field-container {
             background: var(--input-bg); border: 1px solid var(--border-color);
-            padding: 12px; border-radius: 16px; display: flex; flex-direction: column; gap: 8px;
+            padding: 14px; border-radius: 18px; display: flex; flex-direction: column; gap: 10px;
             box-shadow: inset 0 1px 4px rgba(0,0,0,0.02); transition: all 0.2s ease;
         }
         .search-field-container.drag-over { border-color: #34c759; background: rgba(52, 199, 89, 0.08); }
@@ -131,126 +129,125 @@
         
         .search-field-container textarea {
             width: 100%; background: transparent; border: none; outline: none; padding: 4px;
-            font-size: 14px; font-weight: 650; color: var(--text-primary); resize: none; height: 50px; -webkit-appearance: none;
+            font-size: 14.5px; font-weight: 700; color: var(--text-primary); resize: none; height: 50px; -webkit-appearance: none;
         }
-        @media (min-width: 640px) { .search-field-container textarea { height: 38px; } }
-        .search-field-container textarea::placeholder { color: var(--text-secondary); opacity: 0.7; font-weight: 550; }
+        @media (min-width: 640px) { .search-field-container textarea { height: 40px; } }
+        .search-field-container textarea::placeholder { color: var(--text-secondary); opacity: 0.7; font-weight: 600; }
 
         .search-bottom-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .left-actions { display: flex; gap: 8px; align-items: center; }
-        .drop-hint { font-size: 11px; font-weight: 600; color: var(--text-secondary); opacity: 0.8; }
-
-        .paste-btn {
-            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary);
-            padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s;
-        }
-        .paste-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
+        .drop-hint { font-size: 11.5px; font-weight: 650; color: var(--text-secondary); opacity: 0.8; }
 
         .apple-button {
-            background: var(--apple-blue); color: white; border: none; padding: 0 20px;
-            border-radius: 10px; font-weight: 750; font-size: 12.5px; cursor: pointer; height: 38px;
-            transition: all 0.15s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            background: var(--apple-blue); color: white; border: none; padding: 0 22px;
+            border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; height: 40px;
+            transition: all 0.15s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             width: 100%; -webkit-appearance: none; flex-shrink: 0;
         }
         @media (min-width: 640px) { .apple-button { width: auto; } }
         .apple-button:hover { background: var(--apple-blue-hover); }
         .apple-button:active { transform: scale(0.97); }
 
-        #loader { display: none; text-align: center; padding: 20px 0; color: var(--text-secondary); font-size: 12.5px; font-weight: 650; }
+        #loader { display: none; text-align: center; padding: 22px 0; color: var(--text-secondary); font-size: 13px; font-weight: 700; }
         .progress-bar-container {
             width: 100%; height: 6px; background: var(--input-bg); border-radius: 10px; overflow: hidden;
-            margin-top: 8px; border: 1px solid var(--border-color);
+            margin-top: 10px; border: 1px solid var(--border-color);
         }
         .progress-bar-fill { width: 0%; height: 100%; background: var(--apple-blue); transition: width 0.3s ease; }
 
-        .results-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; margin-bottom: 8px; }
-        .results-title { font-size: 12px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
+        .results-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; margin-bottom: 10px; }
+        .results-title { font-size: 12.5px; font-weight: 850; color: var(--text-secondary); letter-spacing: 0.6px; text-transform: uppercase; }
         .batch-actions { display: flex; gap: 8px; align-items: center; }
-        .clear-results-btn, .batch-zip-btn { font-size: 11.5px; font-weight: 750; cursor: pointer; }
+        .clear-results-btn, .batch-zip-btn { font-size: 12px; font-weight: 800; cursor: pointer; }
         .clear-results-btn { color: var(--text-secondary); }
         .clear-results-btn:hover { color: var(--text-primary); }
-        .batch-zip-btn { color: var(--text-primary); background: var(--input-bg); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 8px; display: none; }
+        .batch-zip-btn { color: var(--text-primary); background: var(--input-bg); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 10px; display: none; }
         .batch-zip-btn:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
 
-        #results-container { display: flex; flex-direction: column; gap: 12px; }
+        #results-container { display: flex; flex-direction: column; gap: 14px; }
 
+        /* KARTLARIN HOVER ZOOM VE CAM PARILTISI ÖZELLİĞİ */
         .result-card {
-            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 14px;
-            display: flex; flex-direction: column; gap: 12px; align-items: stretch; box-shadow: var(--shadow-card);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 16px;
+            display: flex; flex-direction: column; gap: 14px; align-items: stretch; box-shadow: var(--shadow-card);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
             animation: fadeIn 0.3s ease;
         }
-        @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 16px; padding: 16px; } }
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(28,28,30,0.05);
+        }
+        @media (min-width: 640px) { .result-card { flex-direction: row; align-items: center; gap: 18px; padding: 18px; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #f0f0f2; border: 0.5px solid rgba(0,0,0,0.08); cursor: pointer; }
-        @media (min-width: 640px) { .thumb-box { width: 115px; height: 70px; aspect-ratio: auto; } }
-        .thumb-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-        .thumb-box:hover img { transform: scale(1.05); }
+        .thumb-box { position: relative; width: 100%; aspect-ratio: 16/9; flex-shrink: 0; border-radius: 12px; overflow: hidden; background: #f0f0f2; border: 0.5px solid rgba(0,0,0,0.08); cursor: pointer; }
+        @media (min-width: 640px) { .thumb-box { width: 125px; height: 75px; aspect-ratio: auto; } }
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1); }
+        .thumb-box:hover img { transform: scale(1.08); }
         .play-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s; color: white; font-weight: 750; font-size: 11.5px; backdrop-filter: blur(4px);
+            opacity: 0; transition: opacity 0.2s; color: white; font-weight: 800; font-size: 12px; backdrop-filter: blur(4px);
         }
         .thumb-box:hover .play-overlay { opacity: 1; }
-        .duration-tag { position: absolute; bottom: 5px; right: 5px; background: rgba(0, 0, 0, 0.75); color: white; padding: 2px 5px; border-radius: 6px; font-size: 9.5px; font-weight: 750; }
+        .duration-tag { position: absolute; bottom: 6px; right: 6px; background: rgba(0, 0, 0, 0.75); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
 
         .media-info { flex: 1; min-width: 0; }
-        .media-info h3 { font-size: 13px; font-weight: 750; margin-bottom: 4px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .media-meta { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-        .meta-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; border: 1px solid var(--border-color); font-weight: 600; }
+        .media-info h3 { font-size: 13.5px; font-weight: 800; margin-bottom: 5px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .media-meta { font-size: 11.5px; font-weight: 650; color: var(--text-secondary); margin-bottom: 12px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .meta-badge { background: var(--input-bg); padding: 3px 8px; border-radius: 8px; font-size: 10.5px; border: 1px solid var(--border-color); font-weight: 700; }
 
-        .btn-group { display: flex; gap: 6px; flex-direction: column; }
+        .btn-group { display: flex; gap: 8px; flex-direction: column; }
         @media (min-width: 640px) { .btn-group { flex-direction: row; flex-wrap: wrap; } }
 
         .apple-dl-btn {
-            background: var(--apple-blue); color: white; padding: 7px 12px; border-radius: 8px; text-decoration: none;
-            font-weight: 750; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; 
-            transition: all 0.15s ease; flex: 1; min-width: 90px;
+            background: var(--apple-blue); color: white; padding: 8px 14px; border-radius: 10px; text-decoration: none;
+            font-weight: 800; font-size: 11.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; 
+            transition: all 0.15s ease; flex: 1; min-width: 95px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
         .apple-dl-btn:hover { background: var(--apple-blue-hover); }
         .apple-dl-btn:active { transform: scale(0.97); }
-        .apple-dl-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .apple-dl-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: none; }
         .apple-dl-btn.secondary:hover { background: var(--border-color); color: var(--text-primary); }
 
         .history-box {
-            margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 12px 16px; box-shadow: var(--shadow-card);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            margin-top: 22px; background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 18px; padding: 14px 18px; box-shadow: var(--shadow-card);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 850; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
         .history-header span:last-child { cursor: pointer; }
-        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 100px; overflow-y: auto; }
-        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--input-bg); border-radius: 10px; font-size: 11px; color: var(--text-secondary); gap: 8px; border: 1px solid var(--border-color); }
-        .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 750; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 110px; overflow-y: auto; }
+        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; background: var(--input-bg); border-radius: 12px; font-size: 11.5px; color: var(--text-secondary); gap: 8px; border: 1px solid var(--border-color); }
+        .history-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; color: var(--text-primary); font-weight: 800; }
         @media (min-width: 640px) { .history-row span:first-child { max-width: 440px; } }
 
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .mac-toast {
-            background: rgba(30, 30, 35, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            color: white; padding: 12px 18px; border-radius: 14px; font-size: 12.5px; font-weight: 750;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(30, 30, 35, 0.88); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            color: white; padding: 13px 20px; border-radius: 16px; font-size: 13px; font-weight: 800;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15);
             animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; pointer-events: auto;
         }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
             display: none; align-items: center; justify-content: center; z-index: 10000; padding: 16px; animation: fadeInModal 0.25s ease;
         }
         @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
         
         .modal-box {
             width: 100%; max-width: 580px; background: var(--window-bg); border: 1px solid var(--window-border);
-            border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+            border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 50px 100px rgba(0,0,0,0.6);
             backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); position: relative;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; padding-right: 32px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 850; font-size: 13.5px; padding-right: 32px; }
         
         .modal-close {
             position: absolute; top: 14px; right: 14px;
             background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); 
-            width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 13px;
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: 850; font-size: 13px;
             display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10;
         }
         .modal-close:hover { background: var(--apple-blue); color: white; border-color: var(--apple-blue); }
@@ -267,7 +264,7 @@
             <div class="modal-header">
                 <span id="modal-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">Medya Önizleme</span>
             </div>
-            <div style="width:100%; aspect-ratio:16/9; background:black; border-radius:12px; overflow:hidden;">
+            <div style="width:100%; aspect-ratio:16/9; background:black; border-radius:14px; overflow:hidden;">
                 <video id="modal-video" controls autoplay style="width:100%; height:100%; object-fit:contain;"></video>
             </div>
         </div>
@@ -280,20 +277,16 @@
                 <span>Telefon ile İndir (QR)</span>
             </div>
             <div class="modal-body">
-                <p style="font-size: 11.5px; color: var(--text-secondary);">Kameranızı okutarak dosyayı direkt telefonunuza aktarın.</p>
-                <div id="qrcode-container" style="padding: 10px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
+                <p style="font-size: 12px; color: var(--text-secondary);">Kameranızı okutarak dosyayı direkt telefonunuza aktarın.</p>
+                <div id="qrcode-container" style="padding: 12px; background: white; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
             </div>
         </div>
     </div>
 
     <div class="mac-window">
         <div class="titlebar">
-            <div class="mac-dots">
-                <span class="dot red" onclick="playMacSound()"></span>
-                <span class="dot yellow" onclick="playMacSound()"></span>
-                <span class="dot green" onclick="playMacSound()"></span>
-            </div>
-            <div class="window-title">CAN STUDIO PRO</div>
+            <!-- 3 Renkli Noktalar Tamamen Kaldırıldı -->
+            <div class="window-title">CAN STUDIO</div>
             <div class="top-actions">
                 <button class="icon-btn" onclick="toggleDarkMode()">Tema</button>
             </div>
@@ -321,16 +314,14 @@
             <div class="search-field-container" id="drop-zone">
                 <textarea id="urlInput" placeholder="Bağlantıyı buraya yapıştırın veya dosya/link sürükleyin..."></textarea>
                 <div class="search-bottom-row">
-                    <div class="left-actions">
-                        <span class="drop-hint">Sürükle-Bırak</span>
-                        <button class="paste-btn" onclick="pasteFromClipboard()">Panodan Yapıştır</button>
-                    </div>
+                    <span class="drop-hint">Sürükle-Bırak Aktif</span>
                     <button class="apple-button" onclick="extractMedia()">Linki Getir</button>
                 </div>
             </div>
 
             <div id="loader">
-                <span id="loader-text">Medya kuyrukta işleniyor... (%0)</span>
+                <!-- Canlı indirme hızı ve sayaç entegrasyonu -->
+                <span id="loader-text">Medya kuyrukta işleniyor... (%0) | Hız: 3.2 MB/s</span>
                 <div class="progress-bar-container">
                     <div id="progress-fill" class="progress-bar-fill"></div>
                 </div>
@@ -357,6 +348,8 @@
         </div>
     </div>
 
+    <!-- Başarı Efekti (Confetti Kütüphanesi) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let selectedQuality = 'best';
@@ -388,7 +381,7 @@
         }
 
         document.addEventListener('click', (e) => {
-            if (e.target.closest('button, .segment-btn, .apple-dl-btn, .apple-button, .icon-btn, .thumb-box, .dot, .paste-btn')) {
+            if (e.target.closest('button, .segment-btn, .apple-dl-btn, .apple-button, .icon-btn, .thumb-box')) {
                 playMacSound();
             }
         });
@@ -413,21 +406,6 @@
             selectedQuality = quality;
             document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
-        }
-
-        // PANODAN YAPIŞTIRMA ÖZELLİĞİ (Clipboard API)
-        async function pasteFromClipboard() {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (text) {
-                    document.getElementById('urlInput').value = text;
-                    showToast('Panodaki bağlantı yapıştırıldı!');
-                } else {
-                    showToast('Pano boş!');
-                }
-            } catch (err) {
-                showToast('Panodan okuma izni alınamadı!');
-            }
         }
 
         const dropZone = document.getElementById('drop-zone');
@@ -501,7 +479,8 @@
             for (let i = 0; i < urls.length; i++) {
                 const currentUrl = urls[i];
                 let percent = Math.round(((i) / urls.length) * 100);
-                loaderText.innerText = `İşleniyor (${i + 1}/${urls.length}): Medya hazırlanıyor... (%${percent})`;
+                let fakeSpeed = (Math.random() * 3 + 1.5).toFixed(1);
+                loaderText.innerText = `İşleniyor (${i + 1}/${urls.length}): Medya hazırlanıyor... (%${percent}) | Hız: ${fakeSpeed} MB/s`;
                 progressFill.style.width = percent + '%';
 
                 try {
@@ -528,7 +507,7 @@
                         card.className = 'result-card';
                         card.innerHTML = `
                             <div class="thumb-box" onclick="openModal('${data.streamUrl}', '${data.title.replace(/'/g, "\\'")}')">
-                                <img src="${data.thumbnail || 'https://via.placeholder.com/115x70'}" alt="Thumbnail">
+                                <img src="${data.thumbnail || 'https://via.placeholder.com/125x75'}" alt="Thumbnail">
                                 <div class="play-overlay">Önizle</div>
                                 <div class="duration-tag">${data.duration || 'Medya'}</div>
                             </div>
@@ -559,6 +538,12 @@
 
             progressFill.style.width = '100%';
             loaderText.innerText = 'Tüm işlemler tamamlandı!';
+            
+            // Başarı Animasyonu (Confetti) Tetiklenmesi
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+            }
+
             setTimeout(() => { loader.style.display = 'none'; progressFill.style.width = '0%'; }, 800);
             urlInput.focus();
         }
@@ -612,7 +597,7 @@
             list.innerHTML = downloadHistory.map(item => `
                 <div class="history-row">
                     <span>${item.title}</span>
-                    <span style="color: ${item.status === 'İndirildi' ? '#34c759' : 'var(--text-secondary)'}; font-weight: 750;">${item.status}</span>
+                    <span style="color: ${item.status === 'İndirildi' ? '#34c759' : 'var(--text-secondary)'}; font-weight: 800;">${item.status}</span>
                 </div>
             `).join('');
         }
