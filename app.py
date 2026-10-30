@@ -6,6 +6,7 @@ import time
 import uuid
 import threading
 import zipfile
+import socket
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates')
@@ -14,6 +15,17 @@ CORS(app)
 DOWNLOAD_FOLDER = os.path.abspath('downloads')
 if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
+
+def get_local_ip():
+    """Telefonla QR okutulduğunda localhost yerine yerel Wi-Fi IP adresini döndürür."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
 
 def cleanup_old_downloads(max_age_seconds=3600):
     """1 saatten eski geçici dosyaları temizler."""
@@ -50,17 +62,18 @@ def extract_media():
         cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
         unique_id = uuid.uuid4().hex[:8]
 
+        # H.264 (avc1) ve AAC (m4a) önceliği ile TikTok/X karanlık ekran sorununu %100 çözer
         ydl_opts = {
             'quiet': True,
             'outtmpl': os.path.join(DOWNLOAD_FOLDER, f'%(id)s_{unique_id}.%(ext)s'),
             'no_warnings': True,
-            'ignoreerrors': True,
+            'ignoreerrors': False,
             'socket_timeout': 30,
             'noplaylist': True,
-            'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+            'format_sort': ['vcodec:h264', 'acodec:m4a', 'ext:mp4:m4a'],
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                'Accept-Language': 'en-US,en;q=0.9',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+                'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
             }
         }
 
@@ -69,7 +82,7 @@ def extract_media():
 
         if quality == 'audio':
             ydl_opts.update({
-                'format': 'bestaudio/best',
+                'format': 'bestaudio[ext=m4a]/bestaudio/best',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
@@ -78,17 +91,17 @@ def extract_media():
             })
         elif quality == '1080':
             ydl_opts.update({
-                'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+                'format': 'bestvideo[height<=1080][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
                 'merge_output_format': 'mp4'
             })
         elif quality == '720':
             ydl_opts.update({
-                'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]/best',
+                'format': 'bestvideo[height<=720][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best',
                 'merge_output_format': 'mp4'
             })
         else:
             ydl_opts.update({
-                'format': 'bestvideo+bestaudio/best',
+                'format': 'bestvideo[vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
                 'merge_output_format': 'mp4'
             })
         
@@ -99,7 +112,6 @@ def extract_media():
 
             video_id = info.get('id', 'media')
             
-            # Gerçekte oluşan dosyayı klasörde bularak uzantı uyuşmazlığını %100 önle
             expected_prefix = f"{video_id}_{unique_id}."
             actual_filename = None
             for f in os.listdir(DOWNLOAD_FOLDER):
@@ -121,19 +133,66 @@ def extract_media():
             size_bytes = os.path.getsize(filepath)
             file_size_mb = f"{size_bytes / (1024 * 1024):.1f} MB"
 
+        # Çözünürlük, FPS ve İzlenme bilgilerini çıkart
+        height = info.get('height')
+        width = info.get('width')
+        fps = info.get('fps')
+        view_count = info.get('view_count')
+        like_count = info.get('like_count')
+
+        if quality == 'audio' or ext == 'mp3':
+            res_badge = "192 kbps Ses"
+        elif height:
+            if height >= 2160:
+                res_badge = "4K Ultra HD"
+            elif height >= 1440:
+                res_badge = "2K QHD"
+            elif height >= 1080:
+                res_badge = "1080p Full HD"
+            elif height >= 720:
+                res_badge = "720p HD"
+            else:
+                res_badge = f"{height}p SD"
+        else:
+            res_badge = "Orijinal Kalite"
+
+        dimensions = f"{width}x{height}" if (width and height and ext != 'mp3') else ("Ses Akışı" if ext == 'mp3' else "Standart")
+        fps_text = f"{int(fps)} FPS" if fps else ""
+
+        def format_number(n):
+            if not n:
+                return ""
+            if n >= 1_000_000:
+                return f"{n/1_000_000:.1f}M"
+            if n >= 1_000:
+                return f"{n/1_000:.1f}B"
+            return str(n)
+
         base_url = request.host_url.rstrip('/')
         stream_url = f"{base_url}/api/stream/{filename}"
+
+        # QR Kod için localhost yerine yerel ağ IP'sini oluştur
+        lan_base_url = base_url
+        if "localhost" in base_url or "127.0.0.1" in base_url:
+            port_part = request.host.split(':')[1] if ':' in request.host else '5000'
+            lan_base_url = f"http://{get_local_ip()}:{port_part}"
 
         return jsonify({
             'success': True,
             'title': info.get('title', 'Medya Dosyası'),
-            'duration': info.get('duration_string', 'Medya'),
+            'duration': info.get('duration_string', '00:00'),
             'thumbnail': info.get('thumbnail', ''),
             'filename': filename,
             'ext': ext,
-            'uploader': info.get('uploader', 'CAN STUDIO'),
+            'uploader': info.get('uploader') or info.get('channel') or 'CAN STUDIO',
             'filesize': file_size_mb,
-            'streamUrl': stream_url
+            'resolution': res_badge,
+            'dimensions': dimensions,
+            'fps': fps_text,
+            'views': format_number(view_count),
+            'likes': format_number(like_count),
+            'streamUrl': stream_url,
+            'lanBaseUrl': lan_base_url
         })
 
     except Exception as e:
@@ -182,13 +241,19 @@ def download_file(filename):
 
 @app.route('/api/stream/<filename>', methods=['GET'])
 def stream_file(filename):
+    """HTTP 206 Byte-Range desteğiyle videonun kasmadan ve takılmadan akmasını sağlar."""
     try:
         safe_filename = secure_filename(filename)
         filepath = os.path.join(DOWNLOAD_FOLDER, safe_filename)
-        return send_file(filepath)
+        if not os.path.exists(filepath):
+            return jsonify({'error': 'Dosya bulunamadı.'}), 404
+        response = send_file(filepath, conditional=True)
+        response.headers['Accept-Ranges'] = 'bytes'
+        response.headers['Cache-Control'] = 'public, max-age=3600'
+        return response
     except Exception as e:
         return jsonify({'error': 'Dosya akışı sağlanamadı.'}), 404
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
