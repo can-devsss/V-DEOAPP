@@ -27,8 +27,40 @@ def get_local_ip():
     except Exception:
         return "127.0.0.1"
 
+def format_duration(seconds_val, fallback_str=None):
+    """Saniye değerini her zaman 00:09 veya 01:24:05 gibi profesyonel formata çevirir."""
+    try:
+        if seconds_val is not None:
+            total_sec = int(round(float(seconds_val)))
+            hrs, rem = divmod(total_sec, 3600)
+            mins, secs = divmod(rem, 60)
+            if hrs > 0:
+                return f"{hrs:02d}:{mins:02d}:{secs:02d}"
+            return f"{mins:02d}:{secs:02d}"
+    except Exception:
+        pass
+    if fallback_str and ":" in str(fallback_str):
+        return str(fallback_str)
+    if fallback_str and str(fallback_str).isdigit():
+        return f"00:{int(fallback_str):02d}"
+    return "00:00"
+
+def format_number(n):
+    """İzlenme ve beğeni sayılarını okunaklı formata çevirir."""
+    try:
+        if not n:
+            return ""
+        n = int(n)
+        if n >= 1_000_000:
+            return f"{n/1_000_000:.1f}M"
+        if n >= 1_000:
+            return f"{n/1_000:.1f}B"
+        return str(n)
+    except Exception:
+        return ""
+
 def cleanup_old_downloads(max_age_seconds=3600):
-    """1 saatten eski geçici dosyaları temizler."""
+    """1 saatten eski geçici dosyaları sessizce temizler."""
     try:
         now = time.time()
         for filename in os.listdir(DOWNLOAD_FOLDER):
@@ -36,8 +68,8 @@ def cleanup_old_downloads(max_age_seconds=3600):
             if os.path.isfile(filepath):
                 if now - os.path.getmtime(filepath) > max_age_seconds:
                     os.remove(filepath)
-    except Exception as e:
-        print(f"Temizlik hatası: {e}")
+    except Exception:
+        pass
 
 @app.route('/')
 def home():
@@ -48,21 +80,20 @@ def extract_media():
     try:
         threading.Thread(target=cleanup_old_downloads, daemon=True).start()
 
-        data = request.get_json()
+        data = request.get_json(silent=True)
         if not data:
             return jsonify({'success': False, 'error': 'Geçersiz veri biçimi.'}), 400
 
         url = data.get('url')
         quality = data.get('quality', 'best')
         
-        if not url:
+        if not url or not str(url).strip():
             return jsonify({'success': False, 'error': 'Bağlantı adresi boş olamaz.'}), 400
 
-        url = url.strip()
+        url = str(url).strip()
         cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
         unique_id = uuid.uuid4().hex[:8]
 
-        # H.264 (avc1) ve AAC (m4a) önceliği ile TikTok/X karanlık ekran sorununu %100 çözer
         ydl_opts = {
             'quiet': True,
             'outtmpl': os.path.join(DOWNLOAD_FOLDER, f'%(id)s_{unique_id}.%(ext)s'),
@@ -110,12 +141,12 @@ def extract_media():
             if not info:
                 return jsonify({'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}), 400
 
-            video_id = info.get('id', 'media')
+            video_id = secure_filename(str(info.get('id', 'media'))) or 'media'
             
             expected_prefix = f"{video_id}_{unique_id}."
             actual_filename = None
             for f in os.listdir(DOWNLOAD_FOLDER):
-                if f.startswith(expected_prefix):
+                if f.endswith(f"_{unique_id}.mp4") or f.endswith(f"_{unique_id}.mp3") or f.startswith(expected_prefix):
                     actual_filename = f
                     break
 
@@ -133,7 +164,6 @@ def extract_media():
             size_bytes = os.path.getsize(filepath)
             file_size_mb = f"{size_bytes / (1024 * 1024):.1f} MB"
 
-        # Çözünürlük, FPS ve İzlenme bilgilerini çıkart
         height = info.get('height')
         width = info.get('width')
         fps = info.get('fps')
@@ -143,35 +173,30 @@ def extract_media():
         if quality == 'audio' or ext == 'mp3':
             res_badge = "192 kbps Ses"
         elif height:
-            if height >= 2160:
+            short_side = min(width, height) if width else height
+            if short_side >= 2160 or height >= 2160:
                 res_badge = "4K Ultra HD"
-            elif height >= 1440:
+            elif short_side >= 1440 or height >= 1440:
                 res_badge = "2K QHD"
-            elif height >= 1080:
+            elif short_side >= 1080 or height >= 1080:
                 res_badge = "1080p Full HD"
-            elif height >= 720:
+            elif short_side >= 720 or height >= 720:
                 res_badge = "720p HD"
             else:
-                res_badge = f"{height}p SD"
+                res_badge = f"{short_side}p SD"
         else:
             res_badge = "Orijinal Kalite"
 
-        dimensions = f"{width}x{height}" if (width and height and ext != 'mp3') else ("Ses Akışı" if ext == 'mp3' else "Standart")
-        fps_text = f"{int(fps)} FPS" if fps else ""
+        dimensions = f"{width} × {height}" if (width and height and ext != 'mp3') else ("Ses Akışı" if ext == 'mp3' else "Standart")
+        fps_text = f"{int(round(fps))} FPS" if fps else ""
+        clean_duration = format_duration(info.get('duration'), info.get('duration_string'))
 
-        def format_number(n):
-            if not n:
-                return ""
-            if n >= 1_000_000:
-                return f"{n/1_000_000:.1f}M"
-            if n >= 1_000:
-                return f"{n/1_000:.1f}B"
-            return str(n)
+        raw_title = info.get('title') or info.get('description') or 'Medya Dosyası'
+        clean_display_title = str(raw_title).strip().split('\n')[0][:110]
 
         base_url = request.host_url.rstrip('/')
         stream_url = f"{base_url}/api/stream/{filename}"
 
-        # QR Kod için localhost yerine yerel ağ IP'sini oluştur
         lan_base_url = base_url
         if "localhost" in base_url or "127.0.0.1" in base_url:
             port_part = request.host.split(':')[1] if ':' in request.host else '5000'
@@ -179,12 +204,12 @@ def extract_media():
 
         return jsonify({
             'success': True,
-            'title': info.get('title', 'Medya Dosyası'),
-            'duration': info.get('duration_string', '00:00'),
+            'title': clean_display_title,
+            'duration': clean_duration,
             'thumbnail': info.get('thumbnail', ''),
             'filename': filename,
             'ext': ext,
-            'uploader': info.get('uploader') or info.get('channel') or 'CAN STUDIO',
+            'uploader': info.get('uploader') or info.get('uploader_id') or info.get('channel') or 'CAN STUDIO',
             'filesize': file_size_mb,
             'resolution': res_badge,
             'dimensions': dimensions,
@@ -201,7 +226,7 @@ def extract_media():
 @app.route('/api/download-zip', methods=['POST'])
 def download_zip():
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         filenames = data.get('filenames', [])
         if not filenames:
             return jsonify({'success': False, 'error': 'Dosya listesi boş.'}), 400
@@ -236,7 +261,7 @@ def download_file(filename):
             return send_file(filepath, as_attachment=True, download_name=download_name)
 
         return send_file(filepath, as_attachment=True)
-    except Exception as e:
+    except Exception:
         return jsonify({'error': 'Dosya bulunamadı.'}), 404
 
 @app.route('/api/stream/<filename>', methods=['GET'])
@@ -251,7 +276,7 @@ def stream_file(filename):
         response.headers['Accept-Ranges'] = 'bytes'
         response.headers['Cache-Control'] = 'public, max-age=3600'
         return response
-    except Exception as e:
+    except Exception:
         return jsonify({'error': 'Dosya akışı sağlanamadı.'}), 404
 
 if __name__ == '__main__':
