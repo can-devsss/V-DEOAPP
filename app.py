@@ -6,6 +6,7 @@ import re
 import time
 import uuid
 import threading
+from concurrent.futures import ThreadPoolExecutor
 import zipfile
 import socket
 import urllib.request
@@ -19,6 +20,9 @@ CORS(app)
 DOWNLOAD_FOLDER = os.path.abspath('downloads')
 if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
+
+# Aynı anda 50 kişiye kadar eşzamanlı indirme/işleme kapasitesi (ThreadPoolExecutor)
+executor = ThreadPoolExecutor(max_workers=50)
 
 def get_local_ip():
     try:
@@ -60,14 +64,18 @@ def format_number(n):
     except Exception:
         return ""
 
-def cleanup_old_downloads(max_age_seconds=3600):
+def cleanup_old_downloads(max_age_seconds=1800):
+    """30 dakikadan eski geçici dosyaları sunucuyu yormamak için otomatik temizler."""
     try:
         now = time.time()
         for filename in os.listdir(DOWNLOAD_FOLDER):
             filepath = os.path.join(DOWNLOAD_FOLDER, filename)
             if os.path.isfile(filepath):
                 if now - os.path.getmtime(filepath) > max_age_seconds:
-                    os.remove(filepath)
+                    try:
+                        os.remove(filepath)
+                    except Exception:
+                        pass
     except Exception:
         pass
 
@@ -82,7 +90,6 @@ def get_platform_headers(url):
         headers['Referer'] = 'https://www.tiktok.com/'
     elif 'instagram.com' in lower:
         headers['Referer'] = 'https://www.instagram.com/'
-        headers['Sec-Fetch-Site'] = 'same-origin'
     elif 'twitter.com' in lower or 'x.com' in lower:
         headers['Referer'] = 'https://x.com/'
         headers['Origin'] = 'https://x.com'
@@ -99,8 +106,8 @@ def download_direct_stream(direct_url, prefix, unique_id, quality, referer='http
         'quiet': True,
         'outtmpl': out_template,
         'no_warnings': True,
-        'retries': 5,
-        'socket_timeout': 60,
+        'retries': 10,
+        'socket_timeout': 120,
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
             'Referer': referer,
@@ -109,11 +116,7 @@ def download_direct_stream(direct_url, prefix, unique_id, quality, referer='http
     if quality == 'audio':
         dl_opts.update({
             'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
+            'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
         })
 
     with yt_dlp.YoutubeDL(dl_opts) as ydl:
@@ -125,18 +128,16 @@ def download_direct_stream(direct_url, prefix, unique_id, quality, referer='http
     return f"{prefix}_{unique_id}.{ext}", ext
 
 def fallback_instagram_extractor(url, unique_id, quality):
-    """Instagram engelini aşmak için çoklu API yedek köprüsü."""
     match = re.search(r'instagram\.com/(?:p|reel|reels)/([^/?]+)', url)
     shortcode = match.group(1) if match else 'insta'
 
-    # 1. Yöntem: Cobalt API
     try:
         api_url = f"https://api.cobalt.tools/api/json"
         payload = json.dumps({"url": url, "vQuality": "1080"}).encode('utf-8')
         req = urllib.request.Request(api_url, data=payload, headers={
             'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json', 'Content-Type': 'application/json'
         })
-        with urllib.request.urlopen(req, timeout=12) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             res_json = json.loads(resp.read().decode('utf-8'))
         direct_url = res_json.get('url') or res_json.get('picker', [{}])[0].get('url')
         if direct_url:
@@ -144,20 +145,6 @@ def fallback_instagram_extractor(url, unique_id, quality):
             return {'id': shortcode, 'title': f"Instagram Video #{shortcode}", 'duration': None, 'thumbnail': '', 'uploader': 'Instagram', 'filename': fname, 'ext': ext}
     except Exception:
         pass
-
-    # 2. Yöntem: Alternatif SnapInsta / Imginn köprü simülasyonu
-    try:
-        api_url = f"https://tikwm.com/api/other?url={urllib.parse.quote(url)}"
-        req = urllib.request.Request(api_url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=12) as resp:
-            res_json = json.loads(resp.read().decode('utf-8'))
-        direct_url = res_json.get('data', {}).get('url')
-        if direct_url:
-            fname, ext = download_direct_stream(direct_url, f"ig_{shortcode}", unique_id, quality, 'https://www.instagram.com/')
-            return {'id': shortcode, 'title': f"Instagram Video #{shortcode}", 'duration': None, 'thumbnail': '', 'uploader': 'Instagram', 'filename': fname, 'ext': ext}
-    except Exception:
-        pass
-
     return None
 
 def fallback_x_extractor(url, unique_id, quality):
@@ -170,7 +157,7 @@ def fallback_x_extractor(url, unique_id, quality):
         try:
             api_url = f"https://{api_domain}/{user}/status/{status_id}"
             req = urllib.request.Request(api_url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=12) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode('utf-8'))
 
             if api_domain == 'api.fxtwitter.com':
@@ -221,7 +208,7 @@ def fallback_tiktok_extractor(url, unique_id, quality):
     try:
         api_url = f"https://www.tikwm.com/api/?url={urllib.parse.quote(url)}&hd=1"
         req = urllib.request.Request(api_url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=12) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             res_json = json.loads(resp.read().decode('utf-8'))
         data = res_json.get('data') or {}
         direct_url = data.get('hdplay') or data.get('play')
@@ -242,6 +229,168 @@ def fallback_tiktok_extractor(url, unique_id, quality):
     except Exception:
         return None
 
+def process_single_extraction(url, quality):
+    """Uzun ve kalabalık istekleri arka planda eşzamanlı işleyen motor."""
+    cleanup_old_downloads()
+    unique_id = uuid.uuid4().hex[:8]
+    lower_url = url.lower()
+    is_twitter = any(d in lower_url for d in ['twitter.com', 'x.com'])
+    is_tiktok = 'tiktok.com' in lower_url
+    is_instagram = 'instagram.com' in lower_url
+
+    cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+    headers = get_platform_headers(url)
+
+    ydl_opts = {
+        'quiet': True,
+        'outtmpl': os.path.join(DOWNLOAD_FOLDER, f'%(id)s_{unique_id}.%(ext)s'),
+        'no_warnings': True,
+        'ignoreerrors': False,
+        'socket_timeout': 120,
+        'noplaylist': True,
+        'retries': 15,
+        'fragment_retries': 15,
+        'geo_bypass': True,
+        'nocheckcertificate': True,
+        'format_sort': ['vcodec:h264', 'acodec:m4a', 'ext:mp4:m4a'],
+        'extractor_args': {
+            'youtube': {'player_client': ['ios', 'android', 'tv_embedded', 'web']},
+            'twitter': {'api': ['syndication', 'graphql', 'legacy']},
+            'tiktok': {'app_name': ['trill', 'musical_ly']},
+            'instagram': {'geo_bypass': ['1']}
+        },
+        'http_headers': headers
+    }
+
+    if os.path.exists(cookies_path):
+        ydl_opts['cookiefile'] = cookies_path
+
+    if quality == 'audio':
+        ydl_opts.update({
+            'format': 'bestaudio[ext=m4a]/bestaudio/best',
+            'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
+        })
+    elif quality == '1080':
+        ydl_opts.update({
+            'format': 'bestvideo[height<=1080][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+            'merge_output_format': 'mp4'
+        })
+    elif quality == '720':
+        ydl_opts.update({
+            'format': 'bestvideo[height<=720][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best',
+            'merge_output_format': 'mp4'
+        })
+    else:
+        ydl_opts.update({
+            'format': 'bestvideo[vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
+            'merge_output_format': 'mp4'
+        })
+
+    info = None
+    filename = None
+    ext = None
+
+    if is_instagram:
+        info = fallback_instagram_extractor(url, unique_id, quality)
+    elif is_twitter:
+        info = fallback_x_extractor(url, unique_id, quality)
+    elif is_tiktok:
+        info = fallback_tiktok_extractor(url, unique_id, quality)
+
+    if not info:
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+        except Exception as primary_err:
+            try:
+                fallback_opts = dict(ydl_opts)
+                fallback_opts.pop('format_sort', None)
+                if quality != 'audio':
+                    fallback_opts['format'] = 'best[protocol^=m3u8]/bestvideo+bestaudio/best'
+                with yt_dlp.YoutubeDL(fallback_opts) as ydl_fb:
+                    info = ydl_fb.extract_info(url, download=True)
+            except Exception:
+                if is_twitter and not info:
+                    info = fallback_x_extractor(url, unique_id, quality)
+                elif is_tiktok and not info:
+                    info = fallback_tiktok_extractor(url, unique_id, quality)
+                elif is_instagram and not info:
+                    info = fallback_instagram_extractor(url, unique_id, quality)
+                
+                if not info:
+                    raise primary_err
+
+    if not info:
+        return {'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}
+
+    if not filename:
+        video_id = secure_filename(str(info.get('id', 'media'))) or 'media'
+        expected_prefix = f"{video_id}_{unique_id}."
+        actual_filename = None
+        for f in os.listdir(DOWNLOAD_FOLDER):
+            if f.endswith(f"_{unique_id}.mp4") or f.endswith(f"_{unique_id}.mp3") or f.startswith(expected_prefix):
+                actual_filename = f
+                break
+
+        if actual_filename:
+            filename = actual_filename
+            ext = filename.rsplit('.', 1)[-1]
+        else:
+            ext = 'mp3' if quality == 'audio' else info.get('ext', 'mp4')
+            filename = f"{video_id}_{unique_id}.{ext}"
+
+    filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+    file_size_mb = "Bilinmiyor"
+    if os.path.exists(filepath):
+        size_bytes = os.path.getsize(filepath)
+        file_size_mb = f"{size_bytes / (1024 * 1024):.1f} MB"
+
+    height = info.get('height')
+    width = info.get('width')
+    fps = info.get('fps')
+    view_count = info.get('view_count')
+    like_count = info.get('like_count')
+
+    if quality == 'audio' or ext == 'mp3':
+        res_badge = "192 kbps Ses"
+    elif height:
+        short_side = min(width, height) if width else height
+        if short_side >= 2160 or height >= 2160:
+            res_badge = "4K Ultra HD"
+        elif short_side >= 1440 or height >= 1440:
+            res_badge = "2K QHD"
+        elif short_side >= 1080 or height >= 1080:
+            res_badge = "1080p Full HD"
+        elif short_side >= 720 or height >= 720:
+            res_badge = "720p HD"
+        else:
+            res_badge = f"{short_side}p SD"
+    else:
+        res_badge = "Orijinal Kalite"
+
+    dimensions = f"{width} × {height}" if (width and height and ext != 'mp3') else ("Ses Akışı" if ext == 'mp3' else "HD Akış")
+    fps_text = f"{int(round(fps))} FPS" if fps else ""
+    clean_duration = format_duration(info.get('duration'), info.get('duration_string'))
+
+    raw_title = info.get('title') or info.get('description') or 'Medya Dosyası'
+    clean_display_title = str(raw_title).strip().split('\n')[0][:110]
+
+    return {
+        'success': True,
+        'title': clean_display_title,
+        'duration': clean_duration,
+            'thumbnail': info.get('thumbnail', ''),
+        'filename': filename,
+        'ext': ext,
+        'uploader': info.get('uploader') or info.get('uploader_id') or info.get('channel') or 'CAN STUDIO',
+        'filesize': file_size_mb,
+        'resolution': res_badge,
+        'dimensions': dimensions,
+        'fps': fps_text,
+        'views': format_number(view_count),
+        'likes': format_number(like_count),
+    }
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -249,8 +398,6 @@ def home():
 @app.route('/api/extract', methods=['POST'])
 def extract_media():
     try:
-        threading.Thread(target=cleanup_old_downloads, daemon=True).start()
-
         data = request.get_json(silent=True)
         if not data:
             return jsonify({'success': False, 'error': 'Geçersiz veri biçimi.'}), 400
@@ -262,180 +409,26 @@ def extract_media():
             return jsonify({'success': False, 'error': 'Bağlantı adresi boş olamaz.'}), 400
 
         url = str(url).strip()
-        lower_url = url.lower()
-        is_twitter = any(d in lower_url for d in ['twitter.com', 'x.com'])
-        is_tiktok = 'tiktok.com' in lower_url
-        is_instagram = 'instagram.com' in lower_url
-
-        cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
-        unique_id = uuid.uuid4().hex[:8]
-        headers = get_platform_headers(url)
-
-        ydl_opts = {
-            'quiet': True,
-            'outtmpl': os.path.join(DOWNLOAD_FOLDER, f'%(id)s_{unique_id}.%(ext)s'),
-            'no_warnings': True,
-            'ignoreerrors': False,
-            'socket_timeout': 60,
-            'noplaylist': True,
-            'retries': 10,
-            'geo_bypass': True,
-            'nocheckcertificate': True,
-            'format_sort': ['vcodec:h264', 'acodec:m4a', 'ext:mp4:m4a'],
-            'extractor_args': {
-                'youtube': {'player_client': ['ios', 'android', 'tv_embedded', 'web']},
-                'twitter': {'api': ['syndication', 'graphql', 'legacy']},
-                'tiktok': {'app_name': ['trill', 'musical_ly']},
-                'instagram': {'geo_bypass': ['1']}
-            },
-            'http_headers': headers
-        }
-
-        if os.path.exists(cookies_path):
-            ydl_opts['cookiefile'] = cookies_path
-
-        if quality == 'audio':
-            ydl_opts.update({
-                'format': 'bestaudio[ext=m4a]/bestaudio/best',
-                'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
-            })
-        elif quality == '1080':
-            ydl_opts.update({
-                'format': 'bestvideo[height<=1080][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
-                'merge_output_format': 'mp4'
-            })
-        elif quality == '720':
-            ydl_opts.update({
-                'format': 'bestvideo[height<=720][vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best',
-                'merge_output_format': 'mp4'
-            })
-        else:
-            ydl_opts.update({
-                'format': 'bestvideo[vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
-                'merge_output_format': 'mp4'
-            })
-
-        info = None
-        filename = None
-        ext = None
-
-        # Önce doğrudan platform özel köprüleri dene (Instagram ve X için engelleri anında atlamak adına)
-        if is_instagram:
-            info = fallback_instagram_extractor(url, unique_id, quality)
-        elif is_twitter:
-            info = fallback_x_extractor(url, unique_id, quality)
-        elif is_tiktok:
-            info = fallback_tiktok_extractor(url, unique_id, quality)
-
-        # Eğer özel köprü sonuç vermediyse standart yt-dlp ile dene
-        if not info:
-            try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    info = ydl.extract_info(url, download=True)
-            except Exception as primary_err:
-                try:
-                    fallback_opts = dict(ydl_opts)
-                    fallback_opts.pop('format_sort', None)
-                    if quality != 'audio':
-                        fallback_opts['format'] = 'best[protocol^=m3u8]/bestvideo+bestaudio/best'
-                    with yt_dlp.YoutubeDL(fallback_opts) as ydl_fb:
-                        info = ydl_fb.extract_info(url, download=True)
-                except Exception:
-                    # En son çare olarak tekrar köprüleri zorla
-                    if is_twitter and not info:
-                        info = fallback_x_extractor(url, unique_id, quality)
-                    elif is_tiktok and not info:
-                        info = fallback_tiktok_extractor(url, unique_id, quality)
-                    elif is_instagram and not info:
-                        info = fallback_instagram_extractor(url, unique_id, quality)
-                    
-                    if not info:
-                        raise primary_err
-
-        if not info:
-            return jsonify({'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}), 400
-
-        if not filename:
-            video_id = secure_filename(str(info.get('id', 'media'))) or 'media'
-            expected_prefix = f"{video_id}_{unique_id}."
-            actual_filename = None
-            for f in os.listdir(DOWNLOAD_FOLDER):
-                if f.endswith(f"_{unique_id}.mp4") or f.endswith(f"_{unique_id}.mp3") or f.startswith(expected_prefix):
-                    actual_filename = f
-                    break
-
-            if actual_filename:
-                filename = actual_filename
-                ext = filename.rsplit('.', 1)[-1]
-            else:
-                ext = 'mp3' if quality == 'audio' else info.get('ext', 'mp4')
-                filename = f"{video_id}_{unique_id}.{ext}"
-
-        filepath = os.path.join(DOWNLOAD_FOLDER, filename)
-
-        file_size_mb = "Bilinmiyor"
-        if os.path.exists(filepath):
-            size_bytes = os.path.getsize(filepath)
-            file_size_mb = f"{size_bytes / (1024 * 1024):.1f} MB"
-
-        height = info.get('height')
-        width = info.get('width')
-        fps = info.get('fps')
-        view_count = info.get('view_count')
-        like_count = info.get('like_count')
-
-        if quality == 'audio' or ext == 'mp3':
-            res_badge = "192 kbps Ses"
-        elif height:
-            short_side = min(width, height) if width else height
-            if short_side >= 2160 or height >= 2160:
-                res_badge = "4K Ultra HD"
-            elif short_side >= 1440 or height >= 1440:
-                res_badge = "2K QHD"
-            elif short_side >= 1080 or height >= 1080:
-                res_badge = "1080p Full HD"
-            elif short_side >= 720 or height >= 720:
-                res_badge = "720p HD"
-            else:
-                res_badge = f"{short_side}p SD"
-        else:
-            res_badge = "Orijinal Kalite"
-
-        dimensions = f"{width} × {height}" if (width and height and ext != 'mp3') else ("Ses Akışı" if ext == 'mp3' else "HD Akış")
-        fps_text = f"{int(round(fps))} FPS" if fps else ""
-        clean_duration = format_duration(info.get('duration'), info.get('duration_string'))
-
-        raw_title = info.get('title') or info.get('description') or 'Medya Dosyası'
-        clean_display_title = str(raw_title).strip().split('\n')[0][:110]
-
         base_url = request.host_url.rstrip('/')
-        stream_url = f"{base_url}/api/stream/{filename}"
-
         lan_base_url = base_url
         if "localhost" in base_url or "127.0.0.1" in base_url:
             port_part = request.host.split(':')[1] if ':' in request.host else '5000'
             lan_base_url = f"http://{get_local_ip()}:{port_part}"
 
-        return jsonify({
-            'success': True,
-            'title': clean_display_title,
-            'duration': clean_duration,
-            'thumbnail': info.get('thumbnail', ''),
-            'filename': filename,
-            'ext': ext,
-            'uploader': info.get('uploader') or info.get('uploader_id') or info.get('channel') or 'CAN STUDIO',
-            'filesize': file_size_mb,
-            'resolution': res_badge,
-            'dimensions': dimensions,
-            'fps': fps_text,
-            'views': format_number(view_count),
-            'likes': format_number(like_count),
-            'streamUrl': stream_url,
-            'lanBaseUrl': lan_base_url
-        })
+        # ThreadPoolExecutor üzerinden eşzamanlı kuyrukta çalıştır
+        future = executor.submit(process_single_extraction, url, quality)
+        result = future.result(timeout=180) # 3 dakikalık uzun video zaman aşımı koruması
+
+        if not result.get('success'):
+            return jsonify(result), 400
+
+        result['streamUrl'] = f"{base_url}/api/stream/{result['filename']}"
+        result['lanBaseUrl'] = lan_base_url
+
+        return jsonify(result)
 
     except Exception as e:
-        return jsonify({'success': False, 'error': f'İşlem hatası: {str(e)}'}), 500
+        return jsonify({'success': False, 'error': f'İşlem hatası (Zaman aşımı veya yoğunluk): {str(e)}'}), 500
 
 @app.route('/api/download-zip', methods=['POST'])
 def download_zip():
