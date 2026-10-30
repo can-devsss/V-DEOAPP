@@ -15,8 +15,6 @@ DOWNLOAD_FOLDER = os.path.abspath('downloads')
 if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
 
-download_lock = threading.Lock()
-
 def cleanup_old_downloads(max_age_seconds=3600):
     """1 saatten eski geçici dosyaları temizler."""
     try:
@@ -36,7 +34,7 @@ def home():
 @app.route('/api/extract', methods=['POST'])
 def extract_media():
     try:
-        threading.Thread(target=cleanup_old_downloads).start()
+        threading.Thread(target=cleanup_old_downloads, daemon=True).start()
 
         data = request.get_json()
         if not data:
@@ -79,22 +77,44 @@ def extract_media():
                 }],
             })
         elif quality == '1080':
-            ydl_opts.update({'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best'})
+            ydl_opts.update({
+                'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+                'merge_output_format': 'mp4'
+            })
         elif quality == '720':
-            ydl_opts.update({'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]/best'})
+            ydl_opts.update({
+                'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]/best',
+                'merge_output_format': 'mp4'
+            })
         else:
-            ydl_opts.update({'format': 'best/best'})
+            ydl_opts.update({
+                'format': 'bestvideo+bestaudio/best',
+                'merge_output_format': 'mp4'
+            })
         
-        with download_lock:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                if not info:
-                    return jsonify({'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}), 400
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            if not info:
+                return jsonify({'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}), 400
 
-                video_id = info.get('id', 'media')
+            video_id = info.get('id', 'media')
+            
+            # Gerçekte oluşan dosyayı klasörde bularak uzantı uyuşmazlığını %100 önle
+            expected_prefix = f"{video_id}_{unique_id}."
+            actual_filename = None
+            for f in os.listdir(DOWNLOAD_FOLDER):
+                if f.startswith(expected_prefix):
+                    actual_filename = f
+                    break
+
+            if actual_filename:
+                filename = actual_filename
+                ext = filename.rsplit('.', 1)[-1]
+            else:
                 ext = 'mp3' if quality == 'audio' else info.get('ext', 'mp4')
                 filename = f"{video_id}_{unique_id}.{ext}"
-                filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+
+            filepath = os.path.join(DOWNLOAD_FOLDER, filename)
 
         file_size_mb = "Bilinmiyor"
         if os.path.exists(filepath):
@@ -146,6 +166,16 @@ def download_file(filename):
     try:
         safe_filename = secure_filename(filename)
         filepath = os.path.join(DOWNLOAD_FOLDER, safe_filename)
+        if not os.path.exists(filepath):
+            return jsonify({'error': 'Dosya bulunamadı.'}), 404
+
+        custom_title = request.args.get('title', '').strip()
+        if custom_title:
+            ext = safe_filename.rsplit('.', 1)[-1]
+            clean_title = "".join(c for c in custom_title if c.isalnum() or c in (' ', '-', '_')).strip()
+            download_name = f"{clean_title or 'can_studio_medya'}.{ext}"
+            return send_file(filepath, as_attachment=True, download_name=download_name)
+
         return send_file(filepath, as_attachment=True)
     except Exception as e:
         return jsonify({'error': 'Dosya bulunamadı.'}), 404
