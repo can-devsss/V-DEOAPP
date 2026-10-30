@@ -122,6 +122,43 @@ def download_direct_stream(direct_url, prefix, unique_id, quality, referer='http
             return f, f.rsplit('.', 1)[-1]
     return f"{prefix}_{unique_id}.{ext}", ext
 
+def fallback_instagram_extractor(url, unique_id, quality):
+    """Instagram boş medya/bot korumasına takıldığında alternatif API köprüsüyle indirir."""
+    try:
+        api_url = f"https://api.cobalt.tools/api/json"
+        payload = json.dumps({"url": url, "vQuality": "1080"}).encode('utf-8')
+        req = urllib.request.Request(api_url, data=payload, headers={
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        })
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            res_json = json.loads(resp.read().decode('utf-8'))
+
+        direct_url = res_json.get('url') or res_json.get('picker', [{}])[0].get('url')
+        if not direct_url:
+            return None
+
+        match = re.search(r'instagram\.com/(?:p|reel|reels)/([^/?]+)', url)
+        shortcode = match.group(1) if match else 'insta'
+        fname, ext = download_direct_stream(direct_url, f"ig_{shortcode}", unique_id, quality, 'https://www.instagram.com/')
+        
+        return {
+            'id': shortcode,
+            'title': f"Instagram Medya #{shortcode}",
+            'duration': None,
+            'thumbnail': '',
+            'width': 1080,
+            'height': 1920,
+            'uploader': 'Instagram',
+            'view_count': None,
+            'like_count': None,
+            'filename': fname,
+            'ext': ext
+        }
+    except Exception:
+        return None
+
 def fallback_x_extractor(url, unique_id, quality):
     match = re.search(r'(?:twitter\.com|x\.com)/([^/]+)/status/(\d+)', url)
     if not match:
@@ -244,6 +281,7 @@ def extract_media():
         lower_url = url.lower()
         is_twitter = any(d in lower_url for d in ['twitter.com', 'x.com'])
         is_tiktok = 'tiktok.com' in lower_url
+        is_instagram = 'instagram.com' in lower_url
 
         cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
         unique_id = uuid.uuid4().hex[:8]
@@ -266,7 +304,8 @@ def extract_media():
             'extractor_args': {
                 'youtube': {'player_client': ['ios', 'android', 'tv_embedded', 'web']},
                 'twitter': {'api': ['syndication', 'graphql', 'legacy']},
-                'tiktok': {'app_name': ['trill', 'musical_ly']}
+                'tiktok': {'app_name': ['trill', 'musical_ly']},
+                'instagram': {'geo_bypass': ['1']}
             },
             'http_headers': headers
         }
@@ -320,6 +359,8 @@ def extract_media():
                     fb_data = fallback_x_extractor(url, unique_id, quality)
                 elif is_tiktok:
                     fb_data = fallback_tiktok_extractor(url, unique_id, quality)
+                elif is_instagram:
+                    fb_data = fallback_instagram_extractor(url, unique_id, quality)
 
                 if fb_data:
                     info = fb_data
