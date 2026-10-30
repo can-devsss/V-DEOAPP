@@ -47,7 +47,6 @@
             --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.35);
         }
 
-        /* Kaydırma çubuğu (Scrollbar) çıktığında ekranın sağa-sola atmasını %100 engeller */
         html {
             scrollbar-gutter: stable;
             overflow-y: scroll;
@@ -62,7 +61,6 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* flex-start + margin auto sayesinde link eklendiğinde pencere yukarı-aşağı zıplamaz */
         body {
             background-color: var(--mac-bg);
             background-image: 
@@ -90,7 +88,6 @@
         }
         .mac-window.expanded { max-width: 1120px; }
 
-        /* macOS Üst Çubuk */
         .titlebar {
             height: 52px; background: rgba(255, 255, 255, 0.45);
             border-bottom: 1px solid var(--border-color); display: flex;
@@ -141,7 +138,6 @@
         @media (min-width: 640px) { .app-header h1 { font-size: 33px; } }
         .app-header p { font-size: 13.5px; color: var(--text-secondary); font-weight: 500; }
 
-        /* Döner Şerit LED Sosyal Medya Kutuları */
         .platforms-row { 
             display: flex; justify-content: center; gap: 9px; margin-bottom: 22px; 
             flex-wrap: wrap; padding-bottom: 4px; align-items: center;
@@ -199,7 +195,6 @@
         .platform-tag:hover { transform: translateY(-2px); box-shadow: 0 5px 16px -3px var(--led-color); }
         .platform-tag:hover::before { animation-duration: 1s; }
 
-        /* iOS Segmented Control (Kalite Seçici) */
         .segmented-control {
             display: grid; grid-template-columns: repeat(2, 1fr);
             background: var(--input-bg); padding: 4px; border-radius: 14px;
@@ -217,7 +212,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.07); border: 1px solid var(--border-color);
         }
 
-        /* Arama ve Link Kutusu */
         .search-field-container {
             background: var(--input-bg); border: 1.5px solid var(--border-color);
             padding: 14px 16px; border-radius: 18px; display: flex; flex-direction: column; gap: 10px;
@@ -262,7 +256,6 @@
         .apple-button:hover:not(:disabled) { background: var(--apple-primary-hover); transform: translateY(-1px); }
         .apple-button:disabled { opacity: 0.55; cursor: not-allowed; }
 
-        /* Lazer Akışlı İlerleme Çubuğu */
         #loader { display: none; text-align: center; padding: 18px 0 6px 0; color: var(--text-secondary); font-size: 12.5px; font-weight: 600; }
         .progress-bar-container {
             width: 100%; height: 6px; background: var(--input-bg); border-radius: 10px; overflow: hidden;
@@ -277,7 +270,6 @@
         }
         @keyframes shimmerBar { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
 
-        /* Sonuçlar Başlık Barı */
         .results-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .results-title { font-size: 11.5px; font-weight: 800; color: var(--text-secondary); letter-spacing: 0.7px; text-transform: uppercase; }
         .batch-actions { display: flex; gap: 8px; align-items: center; }
@@ -296,7 +288,6 @@
 
         #results-container { display: flex; flex-direction: column; gap: 14px; }
 
-        /* YENİ NESİL iOS MEDYA KARTI (Sıfır Sarsıntı, Kusursuz Tipografi) */
         .result-card {
             background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 22px; padding: 16px;
             display: flex; flex-direction: column; gap: 16px; align-items: stretch; box-shadow: var(--shadow-card);
@@ -357,7 +348,6 @@
             display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35;
         }
         
-        /* iOS Kapsül (Pill) Bilgi Etiketleri — Daktilo Fontu Kaldırıldı, SF Pro/Inter Yapıldı */
         .media-meta { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
         .ios-pill {
             display: inline-flex; align-items: center; gap: 5px;
@@ -372,7 +362,6 @@
         }
         .ios-pill.strong svg { color: var(--text-primary); }
 
-        /* Kart Aksiyon Butonları */
         .btn-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 2px; }
         @media (min-width: 580px) { .btn-group { display: flex; flex-wrap: wrap; } }
 
@@ -392,7 +381,6 @@
         .apple-dl-btn.secondary:hover { background: var(--input-bg-hover); border-color: rgba(15, 23, 42, 0.15); }
         body.dark-mode .apple-dl-btn.secondary:hover { border-color: rgba(255, 255, 255, 0.18); }
 
-        /* Oturum Geçmişi */
         .history-box {
             margin-top: 22px; background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 20px; padding: 15px 18px; box-shadow: var(--shadow-card);
@@ -419,7 +407,6 @@
         .history-dl-link svg { width: 13px; height: 13px; }
         .history-dl-link:hover { background: var(--apple-primary); color: var(--apple-primary-text); }
 
-        /* Toast Bildirimleri */
         #toast-container { position: fixed; top: 18px; right: 18px; left: 18px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
         .mac-toast {
             background: rgba(17, 24, 39, 0.92); backdrop-filter: blur(25px);
@@ -432,7 +419,6 @@
         @keyframes slideIn { from { transform: translateY(-14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
-        /* YENİLENMİŞ SÜPER ÖNİZLEME STÜDYOSU (iOS Glass Modal) */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(9, 10, 15, 0.72);
             backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
@@ -471,7 +457,6 @@
         .modal-close svg { width: 16px; height: 16px; stroke-width: 2.2; }
         .modal-close:hover { background: #ef4444; color: white; border-color: #ef4444; transform: rotate(90deg); }
 
-        /* Ambilight Destekli Video/Ses Sahnesi */
         .player-stage {
             width: 100%; height: 54vh; max-height: 470px; min-height: 250px;
             background: #07080c; border-radius: 18px; overflow: hidden;
@@ -505,7 +490,6 @@
             border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
-        /* ÖNİZLEME ALT KONTROL DOCK'U (Modern iOS Tasarımı) */
         .modal-control-dock {
             background: var(--input-bg); border: 1px solid var(--border-color);
             border-radius: 16px; padding: 10px 14px;
@@ -515,7 +499,6 @@
         .modal-specs { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
         .modal-right-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 
-        /* Modern iOS Hız Seçici Kapsülü */
         .speed-controls {
             display: inline-flex; align-items: center; gap: 2px;
             background: var(--card-bg); padding: 3.5px; border-radius: 12px;
@@ -551,7 +534,6 @@
 
     <div id="toast-container"></div>
 
-    <!-- SÜPER ÖNİZLEME STÜDYOSU MODALI -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-top-bar">
@@ -587,7 +569,7 @@
                         <button class="speed-btn" onclick="setPlaySpeed(1.5, this)">1.5×</button>
                         <button class="speed-btn" onclick="setPlaySpeed(2, this)">2×</button>
                     </div>
-                    <button class="pip-btn" onclick="togglePiP()" title="Mini Oynatıcı (Resim İçinde Resim)">
+                    <button class="pip-btn" onclick="togglePiP()" title="Mini Oynatıcı">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><rect x="12" y="9" width="8" height="6" rx="1" fill="currentColor"/></svg>
                         PiP
                     </button>
@@ -600,7 +582,6 @@
         </div>
     </div>
 
-    <!-- QR KOD MODALI -->
     <div id="qr-modal" class="modal-overlay" onclick="closeQRModal()">
         <div class="modal-box" style="max-width: 370px; align-items: center; text-align: center;" onclick="event.stopPropagation()">
             <div class="modal-top-bar">
@@ -684,8 +665,9 @@
                             <span id="hint-text">Sürükle-Bırak & Çoklu Link (Maks 5)</span>
                         </span>
                     </div>
+                    <!-- Şimşek İkonu Yerine Modern İndirme Oku İkonu -->
                     <button class="apple-button" id="extractBtn" onclick="extractMedia()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m0 0l-6-6m6 6l6-6"/></svg>
                         <span id="extractBtnText">Linki Getir</span>
                     </button>
                 </div>
@@ -729,7 +711,6 @@
         let activeFilenames = [];
         let isExtracting = false;
 
-        // Özel Vektör İkon Seti (Windows Emojileri yerine %100 Apple SF Symbols Tarzı)
         const ICONS = {
             download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>',
             play: '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
@@ -1234,7 +1215,6 @@
             } catch(e) {}
         }
 
-        // Aynı video çekildiğinde alt alta kopya oluşturmaz, mevcut olanı en üste günceller
         function addToHistory(key, title, dlUrl) {
             downloadHistory = downloadHistory.filter(item => item.key !== key && item.title !== title);
             downloadHistory.unshift({ key: key, title: title, status: 'Hazır', dlUrl: dlUrl || '' });
