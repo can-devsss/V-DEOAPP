@@ -21,7 +21,6 @@ if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
 
 def get_local_ip():
-    """Telefonla QR okutulduğunda localhost yerine yerel Wi-Fi IP adresini döndürür."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -32,7 +31,6 @@ def get_local_ip():
         return "127.0.0.1"
 
 def format_duration(seconds_val, fallback_str=None):
-    """Saniye değerini her zaman 00:09 veya 01:24:05 gibi profesyonel formata çevirir."""
     try:
         if seconds_val is not None:
             total_sec = int(round(float(seconds_val)))
@@ -50,7 +48,6 @@ def format_duration(seconds_val, fallback_str=None):
     return "00:00"
 
 def format_number(n):
-    """İzlenme ve beğeni sayılarını okunaklı formata çevirir."""
     try:
         if not n:
             return ""
@@ -64,7 +61,6 @@ def format_number(n):
         return ""
 
 def cleanup_old_downloads(max_age_seconds=3600):
-    """1 saatten eski geçici dosyaları sessizce temizler."""
     try:
         now = time.time()
         for filename in os.listdir(DOWNLOAD_FOLDER):
@@ -76,40 +72,33 @@ def cleanup_old_downloads(max_age_seconds=3600):
         pass
 
 def get_platform_headers(url):
-    """Her sosyal medya platformu için orijinal Referer/Origin başlıkları üretir (403 Önleyici)."""
     lower = url.lower()
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
         'Accept': '*/*',
         'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Sec-Fetch-Mode': 'navigate',
     }
     if 'tiktok.com' in lower:
         headers['Referer'] = 'https://www.tiktok.com/'
-        headers['Origin'] = 'https://www.tiktok.com'
     elif 'instagram.com' in lower:
         headers['Referer'] = 'https://www.instagram.com/'
-        headers['Origin'] = 'https://www.instagram.com'
     elif 'twitter.com' in lower or 'x.com' in lower:
         headers['Referer'] = 'https://x.com/'
-        headers['Origin'] = 'https://x.com'
     elif 'pinterest.com' in lower or 'pin.it' in lower:
         headers['Referer'] = 'https://www.pinterest.com/'
-        headers['Origin'] = 'https://www.pinterest.com'
     elif 'youtube.com' in lower or 'youtu.be' in lower:
         headers['Referer'] = 'https://www.youtube.com/'
-        headers['Origin'] = 'https://www.youtube.com'
     return headers
 
 def download_direct_stream(direct_url, prefix, unique_id, quality, referer='https://google.com/'):
-    """Yedek API'lerden gelen doğrudan medya akışını indirir ve dosya adını döndürür."""
     ext = 'mp3' if quality == 'audio' else 'mp4'
     out_template = os.path.join(DOWNLOAD_FOLDER, f"{prefix}_{unique_id}.%(ext)s")
     dl_opts = {
         'quiet': True,
         'outtmpl': out_template,
         'no_warnings': True,
-        'retries': 3,
+        'retries': 5,
+        'socket_timeout': 60,
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
             'Referer': referer,
@@ -134,13 +123,11 @@ def download_direct_stream(direct_url, prefix, unique_id, quality, referer='http
     return f"{prefix}_{unique_id}.{ext}", ext
 
 def fallback_x_extractor(url, unique_id, quality):
-    """X (Twitter) 403 verdiğinde FxTwitter ve VxTwitter API köprüleriyle kurtarır."""
     match = re.search(r'(?:twitter\.com|x\.com)/([^/]+)/status/(\d+)', url)
     if not match:
         return None
     user, status_id = match.group(1), match.group(2)
 
-    # Önce FxTwitter, olmazsa VxTwitter dene
     for api_domain in ['api.fxtwitter.com', 'api.vxtwitter.com']:
         try:
             api_url = f"https://{api_domain}/{user}/status/{status_id}"
@@ -202,7 +189,6 @@ def fallback_x_extractor(url, unique_id, quality):
     return None
 
 def fallback_tiktok_extractor(url, unique_id, quality):
-    """TikTok 403 veya Captcha verdiğinde TikWM API köprüsü üzerinden HD indirir."""
     try:
         api_url = f"https://www.tikwm.com/api/?url={urllib.parse.quote(url)}&hd=1"
         req = urllib.request.Request(api_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -263,18 +249,17 @@ def extract_media():
         unique_id = uuid.uuid4().hex[:8]
         headers = get_platform_headers(url)
 
-        # Tüm platformlar için 403 önleyici extractor parametreleri
         ydl_opts = {
             'quiet': True,
             'outtmpl': os.path.join(DOWNLOAD_FOLDER, f'%(id)s_{unique_id}.%(ext)s'),
             'no_warnings': True,
             'ignoreerrors': False,
-            'socket_timeout': 30,
+            'socket_timeout': 60,
             'noplaylist': True,
-            'retries': 5,
-            'fragment_retries': 5,
-            'file_access_retries': 3,
-            'extractor_retries': 3,
+            'retries': 10,
+            'fragment_retries': 10,
+            'file_access_retries': 5,
+            'extractor_retries': 5,
             'geo_bypass': True,
             'nocheckcertificate': True,
             'format_sort': ['vcodec:h264', 'acodec:m4a', 'ext:mp4:m4a'],
@@ -318,12 +303,10 @@ def extract_media():
         filename = None
         ext = None
 
-        # 1. KATMAN: Standart Güçlendirilmiş yt-dlp Çekimi
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
         except Exception as primary_err:
-            # 2. KATMAN: Evrensel HLS / Esnek Format Kurtarma (Tüm Platformlar İçin)
             try:
                 fallback_opts = dict(ydl_opts)
                 fallback_opts.pop('format_sort', None)
@@ -332,7 +315,6 @@ def extract_media():
                 with yt_dlp.YoutubeDL(fallback_opts) as ydl_fb:
                     info = ydl_fb.extract_info(url, download=True)
             except Exception:
-                # 3. KATMAN: Platforma Özel Doğrudan API Köprüleri (X ve TikTok 403 Bypass)
                 fb_data = None
                 if is_twitter:
                     fb_data = fallback_x_extractor(url, unique_id, quality)
@@ -474,7 +456,6 @@ def download_file(filename):
 
 @app.route('/api/stream/<filename>', methods=['GET'])
 def stream_file(filename):
-    """HTTP 206 Byte-Range desteğiyle videonun kasmadan ve takılmadan akmasını sağlar."""
     try:
         safe_filename = secure_filename(filename)
         filepath = os.path.join(DOWNLOAD_FOLDER, safe_filename)
