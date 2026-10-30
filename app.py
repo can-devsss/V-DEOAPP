@@ -9,6 +9,7 @@ import threading
 import zipfile
 import socket
 import urllib.request
+import urllib.parse
 import json
 from werkzeug.utils import secure_filename
 
@@ -74,45 +75,44 @@ def cleanup_old_downloads(max_age_seconds=3600):
     except Exception:
         pass
 
-def fallback_x_extractor(url, unique_id, quality):
-    """
-    Render gibi bulut sunucularda X (Twitter) 403 Forbidden verdiğinde
-    FxTwitter / VxTwitter API köprüsü üzerinden videoyu doğrudan kurtarır.
-    """
-    match = re.search(r'(?:twitter\.com|x\.com)/([^/]+)/status/(\d+)', url)
-    if not match:
-        return None
-    user, status_id = match.group(1), match.group(2)
-    api_url = f"https://api.fxtwitter.com/{user}/status/{status_id}"
+def get_platform_headers(url):
+    """Her sosyal medya platformu için orijinal Referer/Origin başlıkları üretir (403 Önleyici)."""
+    lower = url.lower()
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        'Accept': '*/*',
+        'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Sec-Fetch-Mode': 'navigate',
+    }
+    if 'tiktok.com' in lower:
+        headers['Referer'] = 'https://www.tiktok.com/'
+        headers['Origin'] = 'https://www.tiktok.com'
+    elif 'instagram.com' in lower:
+        headers['Referer'] = 'https://www.instagram.com/'
+        headers['Origin'] = 'https://www.instagram.com'
+    elif 'twitter.com' in lower or 'x.com' in lower:
+        headers['Referer'] = 'https://x.com/'
+        headers['Origin'] = 'https://x.com'
+    elif 'pinterest.com' in lower or 'pin.it' in lower:
+        headers['Referer'] = 'https://www.pinterest.com/'
+        headers['Origin'] = 'https://www.pinterest.com'
+    elif 'youtube.com' in lower or 'youtu.be' in lower:
+        headers['Referer'] = 'https://www.youtube.com/'
+        headers['Origin'] = 'https://www.youtube.com'
+    return headers
 
-    req = urllib.request.Request(api_url, headers={
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0.0.0 Safari/537.36'
-    })
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        data = json.loads(resp.read().decode('utf-8'))
-
-    tweet = data.get('tweet') or {}
-    media = tweet.get('media') or {}
-    videos = media.get('videos') or media.get('all') or []
-    if not videos:
-        return None
-
-    video_obj = videos[0]
-    direct_video_url = video_obj.get('url')
-    if not direct_video_url:
-        return None
-
+def download_direct_stream(direct_url, prefix, unique_id, quality, referer='https://google.com/'):
+    """Yedek API'lerden gelen doğrudan medya akışını indirir ve dosya adını döndürür."""
     ext = 'mp3' if quality == 'audio' else 'mp4'
-    filename = f"x_{status_id}_{unique_id}.{ext}"
-    filepath = os.path.join(DOWNLOAD_FOLDER, filename)
-
+    out_template = os.path.join(DOWNLOAD_FOLDER, f"{prefix}_{unique_id}.%(ext)s")
     dl_opts = {
         'quiet': True,
-        'outtmpl': filepath,
+        'outtmpl': out_template,
         'no_warnings': True,
+        'retries': 3,
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-            'Referer': 'https://x.com/',
+            'Referer': referer,
         }
     }
     if quality == 'audio':
@@ -123,33 +123,117 @@ def fallback_x_extractor(url, unique_id, quality):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': os.path.join(DOWNLOAD_FOLDER, f"x_{status_id}_{unique_id}.%(ext)s")
         })
 
     with yt_dlp.YoutubeDL(dl_opts) as ydl:
-        ydl.download([direct_video_url])
+        ydl.download([direct_url])
 
-    # Oluşan dosyayı doğrula
     for f in os.listdir(DOWNLOAD_FOLDER):
-        if f.startswith(f"x_{status_id}_{unique_id}."):
-            filename = f
-            ext = f.rsplit('.', 1)[-1]
-            break
+        if f.startswith(f"{prefix}_{unique_id}."):
+            return f, f.rsplit('.', 1)[-1]
+    return f"{prefix}_{unique_id}.{ext}", ext
 
-    author = tweet.get('author') or {}
-    return {
-        'id': status_id,
-        'title': (tweet.get('text') or f"X Video #{status_id}").split('\n')[0][:100],
-        'duration': video_obj.get('duration'),
-        'thumbnail': video_obj.get('thumbnail_url') or '',
-        'width': video_obj.get('width'),
-        'height': video_obj.get('height'),
-        'uploader': author.get('name') or author.get('screen_name') or user,
-        'view_count': tweet.get('views'),
-        'like_count': tweet.get('likes'),
-        'filename': filename,
-        'ext': ext
-    }
+def fallback_x_extractor(url, unique_id, quality):
+    """X (Twitter) 403 verdiğinde FxTwitter ve VxTwitter API köprüleriyle kurtarır."""
+    match = re.search(r'(?:twitter\.com|x\.com)/([^/]+)/status/(\d+)', url)
+    if not match:
+        return None
+    user, status_id = match.group(1), match.group(2)
+
+    # Önce FxTwitter, olmazsa VxTwitter dene
+    for api_domain in ['api.fxtwitter.com', 'api.vxtwitter.com']:
+        try:
+            api_url = f"https://{api_domain}/{user}/status/{status_id}"
+            req = urllib.request.Request(api_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+
+            if api_domain == 'api.fxtwitter.com':
+                tweet = data.get('tweet') or {}
+                media = tweet.get('media') or {}
+                videos = media.get('videos') or media.get('all') or []
+                if not videos:
+                    continue
+                v = videos[0]
+                direct_url = v.get('url')
+                if not direct_url:
+                    continue
+                fname, ext = download_direct_stream(direct_url, f"x_{status_id}", unique_id, quality, 'https://x.com/')
+                author = tweet.get('author') or {}
+                return {
+                    'id': status_id,
+                    'title': (tweet.get('text') or f"X Video #{status_id}").split('\n')[0][:100],
+                    'duration': v.get('duration'),
+                    'thumbnail': v.get('thumbnail_url') or '',
+                    'width': v.get('width'),
+                    'height': v.get('height'),
+                    'uploader': author.get('name') or author.get('screen_name') or user,
+                    'view_count': tweet.get('views'),
+                    'like_count': tweet.get('likes'),
+                    'filename': fname,
+                    'ext': ext
+                }
+            else:
+                media_extended = data.get('media_extended') or []
+                videos = [m for m in media_extended if m.get('type') in ('video', 'gif')]
+                if not videos:
+                    continue
+                v = videos[0]
+                direct_url = v.get('url')
+                if not direct_url:
+                    continue
+                fname, ext = download_direct_stream(direct_url, f"x_{status_id}", unique_id, quality, 'https://x.com/')
+                size_info = v.get('size') or {}
+                return {
+                    'id': status_id,
+                    'title': (data.get('text') or f"X Video #{status_id}").split('\n')[0][:100],
+                    'duration': (v.get('duration_millis') or 0) / 1000.0 if v.get('duration_millis') else None,
+                    'thumbnail': v.get('thumbnail_url') or '',
+                    'width': size_info.get('width'),
+                    'height': size_info.get('height'),
+                    'uploader': data.get('user_name') or data.get('user_screen_name') or user,
+                    'view_count': None,
+                    'like_count': data.get('likes'),
+                    'filename': fname,
+                    'ext': ext
+                }
+        except Exception:
+            continue
+    return None
+
+def fallback_tiktok_extractor(url, unique_id, quality):
+    """TikTok 403 veya Captcha verdiğinde TikWM API köprüsü üzerinden HD indirir."""
+    try:
+        api_url = f"https://www.tikwm.com/api/?url={urllib.parse.quote(url)}&hd=1"
+        req = urllib.request.Request(api_url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            res_json = json.loads(resp.read().decode('utf-8'))
+
+        data = res_json.get('data') or {}
+        direct_url = data.get('hdplay') or data.get('play')
+        if quality == 'audio' and data.get('music'):
+            direct_url = data.get('music')
+        if not direct_url:
+            return None
+
+        vid_id = str(data.get('id') or 'tiktok')
+        fname, ext = download_direct_stream(direct_url, f"tt_{vid_id}", unique_id, quality, 'https://www.tiktok.com/')
+        author = data.get('author') or {}
+        return {
+            'id': vid_id,
+            'title': (data.get('title') or f"TikTok Video #{vid_id}").split('\n')[0][:100],
+            'duration': data.get('duration'),
+            'thumbnail': data.get('cover') or data.get('origin_cover') or '',
+            'width': None,
+            'height': 1080 if data.get('hdplay') else 720,
+            'uploader': author.get('nickname') or author.get('unique_id') or 'TikTok',
+            'view_count': data.get('play_count'),
+            'like_count': data.get('digg_count'),
+            'filename': fname,
+            'ext': ext
+        }
+    except Exception:
+        return None
 
 @app.route('/')
 def home():
@@ -171,18 +255,15 @@ def extract_media():
             return jsonify({'success': False, 'error': 'Bağlantı adresi boş olamaz.'}), 400
 
         url = str(url).strip()
-        is_twitter = any(d in url.lower() for d in ['twitter.com', 'x.com'])
+        lower_url = url.lower()
+        is_twitter = any(d in lower_url for d in ['twitter.com', 'x.com'])
+        is_tiktok = 'tiktok.com' in lower_url
+
         cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
         unique_id = uuid.uuid4().hex[:8]
+        headers = get_platform_headers(url)
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-            'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-        }
-        if is_twitter:
-            headers['Referer'] = 'https://x.com/'
-            headers['Origin'] = 'https://x.com'
-
+        # Tüm platformlar için 403 önleyici extractor parametreleri
         ydl_opts = {
             'quiet': True,
             'outtmpl': os.path.join(DOWNLOAD_FOLDER, f'%(id)s_{unique_id}.%(ext)s'),
@@ -190,11 +271,17 @@ def extract_media():
             'ignoreerrors': False,
             'socket_timeout': 30,
             'noplaylist': True,
-            'retries': 3,
-            'fragment_retries': 3,
+            'retries': 5,
+            'fragment_retries': 5,
+            'file_access_retries': 3,
+            'extractor_retries': 3,
+            'geo_bypass': True,
+            'nocheckcertificate': True,
             'format_sort': ['vcodec:h264', 'acodec:m4a', 'ext:mp4:m4a'],
             'extractor_args': {
-                'twitter': {'api': ['syndication', 'graphql', 'legacy']}
+                'youtube': {'player_client': ['ios', 'android', 'tv_embedded', 'web']},
+                'twitter': {'api': ['syndication', 'graphql', 'legacy']},
+                'tiktok': {'app_name': ['trill', 'musical_ly']}
             },
             'http_headers': headers
         }
@@ -231,29 +318,33 @@ def extract_media():
         filename = None
         ext = None
 
+        # 1. KATMAN: Standart Güçlendirilmiş yt-dlp Çekimi
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
         except Exception as primary_err:
-            # Eğer X (Twitter) 403 Forbidden verdiyse 2. ve 3. Kurtarma Motorunu devreye sok
-            if is_twitter:
-                try:
-                    # 2. Aşama: HLS (m3u8) protokolünü zorlayarak dene
-                    hls_opts = dict(ydl_opts)
-                    hls_opts['format'] = 'best[protocol^=m3u8]/bestvideo[protocol^=m3u8]+bestaudio/best'
-                    with yt_dlp.YoutubeDL(hls_opts) as ydl_hls:
-                        info = ydl_hls.extract_info(url, download=True)
-                except Exception:
-                    # 3. Aşama: FxTwitter API Köprüsü ile doğrudan çek (%100 403 Bypass)
+            # 2. KATMAN: Evrensel HLS / Esnek Format Kurtarma (Tüm Platformlar İçin)
+            try:
+                fallback_opts = dict(ydl_opts)
+                fallback_opts.pop('format_sort', None)
+                if quality != 'audio':
+                    fallback_opts['format'] = 'best[protocol^=m3u8]/bestvideo+bestaudio/best'
+                with yt_dlp.YoutubeDL(fallback_opts) as ydl_fb:
+                    info = ydl_fb.extract_info(url, download=True)
+            except Exception:
+                # 3. KATMAN: Platforma Özel Doğrudan API Köprüleri (X ve TikTok 403 Bypass)
+                fb_data = None
+                if is_twitter:
                     fb_data = fallback_x_extractor(url, unique_id, quality)
-                    if fb_data:
-                        info = fb_data
-                        filename = fb_data['filename']
-                        ext = fb_data['ext']
-                    else:
-                        raise primary_err
-            else:
-                raise primary_err
+                elif is_tiktok:
+                    fb_data = fallback_tiktok_extractor(url, unique_id, quality)
+
+                if fb_data:
+                    info = fb_data
+                    filename = fb_data['filename']
+                    ext = fb_data['ext']
+                else:
+                    raise primary_err
 
         if not info:
             return jsonify({'success': False, 'error': 'Medya bilgisi çözümlenemedi.'}), 400
@@ -304,7 +395,7 @@ def extract_media():
         else:
             res_badge = "Orijinal Kalite"
 
-        dimensions = f"{width} × {height}" if (width and height and ext != 'mp3') else ("Ses Akışı" if ext == 'mp3' else "Standart")
+        dimensions = f"{width} × {height}" if (width and height and ext != 'mp3') else ("Ses Akışı" if ext == 'mp3' else "HD Akış")
         fps_text = f"{int(round(fps))} FPS" if fps else ""
         clean_duration = format_duration(info.get('duration'), info.get('duration_string'))
 
